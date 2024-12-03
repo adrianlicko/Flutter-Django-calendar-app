@@ -5,6 +5,7 @@ class CardBanner extends StatelessWidget {
   final List<Color> gradientColors;
   final void Function() onTap;
   final Widget? icon;
+  final bool halfWidth;
 
   const CardBanner({
     super.key,
@@ -12,6 +13,7 @@ class CardBanner extends StatelessWidget {
     required this.gradientColors,
     required this.onTap,
     this.icon,
+    this.halfWidth = false,
   });
 
   @override
@@ -20,29 +22,32 @@ class CardBanner extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0, right: 16.0, bottom: 8.0, left: 16.0),
-        child: AspectRatio(
-          aspectRatio: 2 / 0.6,
-          child: Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradientColors),
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8.0,
-                    offset: const Offset(0, 3),
-                  ),
+        child: Container(
+            height: 100,
+            width: halfWidth ? MediaQuery.of(context).size.width * 0.5 : null,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradientColors),
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8.0,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Stack(
+                children: [
+                  Align(alignment: Alignment.centerRight, child: icon ?? Container()),
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(title, style: Theme.of(context).textTheme.titleLarge)),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  children: [Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge)), icon ?? Container()],
-                ),
-              )),
-        ),
+            )),
       ),
     );
   }

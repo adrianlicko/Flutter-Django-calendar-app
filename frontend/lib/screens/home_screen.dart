@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
       alignment: Alignment.center,
       transform: Matrix4.identity()
         ..scale(1.3)
-        ..rotateZ(-30 * (math.pi / 180)),
+        ..rotateZ(-20 * (math.pi / 180)),
       child: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -54,27 +54,43 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-  
+
+  Widget _buildProfileIcon() {
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..scale(1.1)
+        ..rotateZ(0 * (math.pi / 180)),
+      child: Image.asset(
+        "images/profile_icon.png",
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
         body: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CardBanner(
             title: "Calendar",
             gradientColors: [Colors.blue[700]!, Colors.blue],
             icon: _buildCalendarIcon(),
-            onTap: () {
-              router.push('/calendar');
-            }),
-            CardBanner(
-              title: "To Do",
-              gradientColors: [Colors.red[700]!, Colors.purple],
-              icon: _buildTodoIcon(),
-              onTap: () {
-                router.push('/todo');
-              },
-            ),
+            onTap: () => router.push('/calendar')),
+        CardBanner(
+            title: "To Do",
+            gradientColors: [Colors.red[700]!, Colors.purple],
+            icon: _buildTodoIcon(),
+            onTap: () => router.push('/todo')),
+        CardBanner(
+          title: "Profile",
+          gradientColors: [Colors.grey[700]!, Colors.grey],
+          icon: _buildProfileIcon(),
+          halfWidth: true,
+          onTap: () => router.push('/profile'),
+        ),
       ],
     ));
   }
