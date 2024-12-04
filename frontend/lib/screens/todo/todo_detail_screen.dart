@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
-import 'package:frontend/services/todo_service.dart';
+import 'package:frontend/models/todo_model.dart';
 
 class TodoDetailScreen extends StatelessWidget {
-  final String todoId;
+  final TodoModel todo;
 
   const TodoDetailScreen({
     super.key,
-    required this.todoId,
+    required this.todo,
   });
 
   @override
   Widget build(BuildContext context) {
-    final todo = TodoService.getTodoById(todoId);
 
     return AppScaffold(
       title: todo.title,

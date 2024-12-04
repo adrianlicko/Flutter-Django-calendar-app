@@ -1,3 +1,4 @@
+import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/screens/calendar_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/todo/todo_detail_screen.dart';
@@ -24,10 +25,10 @@ GoRouter router = GoRouter(
     ),
     GoRoute(
       name: 'todoDetail',
-      path: '/todo/:id',
+      path: '/todo_detail',
       builder: (context, state) {
-        final id = state.pathParameters['id'];
-        return TodoDetailScreen(todoId: id!);
+        final todo = state.extra as TodoModel;
+        return TodoDetailScreen(todo: todo);
       },
     ),
   ],

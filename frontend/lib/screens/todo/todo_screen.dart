@@ -13,9 +13,7 @@ class TodoScreen extends StatelessWidget {
 
     return AppScaffold(
         body: Column(
-      children: todos
-          .map((todo) => TodoCard(todoId: todo.id, todoTitle: todo.title, todoDescription: todo.description))
-          .toList(),
+      children: todos.map((todo) => TodoCard(todo: todo)).toList(),
     ));
   }
 }
