@@ -1,7 +1,7 @@
 import 'package:frontend/screens/calendar_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
-import 'package:frontend/screens/profile_screen.dart';
-import 'package:frontend/screens/todo_screen.dart';
+import 'package:frontend/screens/todo/todo_detail_screen.dart';
+import 'package:frontend/screens/todo/todo_screen.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter router = GoRouter(
@@ -23,9 +23,12 @@ GoRouter router = GoRouter(
       builder: (context, state) => const TodoScreen(),
     ),
     GoRoute(
-      name: 'profile',
-      path: '/profile',
-      builder: (context, state) => const ProfileScreen(),
+      name: 'todoDetail',
+      path: '/todo/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'];
+        return TodoDetailScreen(todoId: id!);
+      },
     ),
   ],
 );

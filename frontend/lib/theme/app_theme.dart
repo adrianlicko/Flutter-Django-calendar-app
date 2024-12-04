@@ -39,15 +39,15 @@ class AppTheme {
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
           ),
-          titleSmall: TextStyle(
-            color: theme.textColor,
+          titleSmall: const TextStyle(
+            color: Color.fromARGB(255, 189, 189, 189),
             fontSize: 16,
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
           ),
-          titleMedium: TextStyle(
-            color: theme.textColor,
-            fontSize: 24,
+          titleMedium: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
           ),
