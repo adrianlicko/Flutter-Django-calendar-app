@@ -3,7 +3,7 @@ class TodoModel {
   final String id;
   final String title;
   final String? description;
-  final bool isCompleted;
+  bool isCompleted;
 
   TodoModel({
     this.createdAt, // backend will handle this
