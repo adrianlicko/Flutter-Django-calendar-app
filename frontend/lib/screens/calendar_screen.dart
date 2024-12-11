@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
+import 'package:frontend/dialogs/create_time_dialog.dart';
+import 'package:frontend/models/schedule_model.dart';
+import 'package:frontend/services/calendar_service.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:frontend/theme/app_theme.dart';
 
@@ -11,9 +14,39 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  Map<String, int> weekDays = {
+    'Po': 1,
+    'Ut': 2,
+    'St': 3,
+    'Št': 4,
+    'Pi': 5,
+  };
   DateTime now = DateTime.now();
   int currentWeekDay = DateTime.now().weekday;
   int selectedWeekDay = DateTime.now().weekday;
+  List<ScheduleModel> schedules = CalendarService.getSchedules();
+
+  Widget _buildAddScheduleButton() {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => CreateTimeDialog(selectedWeekDay: selectedWeekDay),
+        ).then((_) {
+          setState(() {});
+        });
+      },
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+          borderRadius: const BorderRadius.all(Radius.circular(50)),
+        ),
+        child: const Icon(Icons.playlist_add, size: 30),
+      ),
+    );
+  }
 
   Widget _buildDayButton(String dayLabel, String dateLabel) {
     return Column(
@@ -33,7 +66,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildCurrentDayButton(String dayLabel, String dateLabel) {
     return Container(
-      padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, left: 4.0, right: 4.0),
+      padding: const EdgeInsets.only(top: 6.0, bottom: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
         color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor.withOpacity(0.2),
@@ -43,15 +76,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildWeekButtons() {
-    List<String> weekDays = ['Po', 'Ut', 'St', 'Št', 'Pi'];
-
     DateTime monday = now.subtract(Duration(days: currentWeekDay - 1));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: List.generate(5, (index) {
         DateTime date = monday.add(Duration(days: index));
-        String dayLabel = weekDays[index];
+        String dayLabel = weekDays.keys.elementAt(index);
         String dateLabel = '${date.day}.${date.month}.';
 
         return GestureDetector(
@@ -68,70 +99,106 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildTimeColumn() {
-    List<String> times = [];
-    for (int i = 7; i <= 20; i++) {
-      times.add('$i:00');
-    }
-
+  Widget _buildScheduleTime(ScheduleModel schedule) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: times.map((time) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(width: 48, child: Text(time)),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10.0),
-                    Container(height: 1, color: Colors.black),
-                    const SizedBox(height: 24.0),
-                    // Container(height: 1, color: Colors.grey[500]),
-                    const SizedBox(height: 24.0),
-                    // Container(height: 1, color: Colors.grey[500]),
-                    const SizedBox(height: 24.0),
-                    // Container(height: 1, color: Colors.grey[500]),
-                    const SizedBox(height: 14.0),
-                  ],
-                ),
-              )
-            ],
-          );
-        }).toList(),
+      padding: const EdgeInsets.only(left: 8.0),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.15,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(schedule.startTime.format(context)),
+            Text(schedule.endTime.format(context)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildAddScheduleButton() {
-    return GestureDetector(
-      onTap: () {},
+  Widget _buildScheduleCalendar(ScheduleModel schedule) {
+    return Expanded(
       child: Container(
-        width: 60,
-        height: 60,
+        margin: const EdgeInsets.only(left: 24.0, right: 32.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
-          borderRadius: const BorderRadius.all(Radius.circular(50)),
+          color: schedule.color.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(12.0),
         ),
-        child: const Icon(Icons.playlist_add, size: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(schedule.title, style: const TextStyle().copyWith(fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (schedule.description != null)
+                  Text(schedule.description!, style: const TextStyle().copyWith(color: Colors.black.withOpacity(0.4))),
+                if (schedule.room != null) Text(schedule.room!),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  bool _isLastSchedule(ScheduleModel schedule) {
+    ScheduleModel lastSchedule = schedule;
+    for (int i = schedules.indexOf(schedule) + 1; i < schedules.length; i++) {
+      if (schedules[i].weekDay == selectedWeekDay) {
+        lastSchedule = schedules[i];
+      }
+    }
+    return lastSchedule != schedule;
+  }
+
+  Widget _buildScheduleDivider(ScheduleModel schedule) {
+    return Column(
+      children: [
+        const SizedBox(height: 4.0),
+        if (_isLastSchedule(schedule)) const Divider(indent: 8.0, endIndent: 8.0),
+        const SizedBox(height: 4.0),
+      ],
+    );
+  }
+
+  Widget _buildTimeTable() {
+    return Column(
+      children: schedules.map((schedule) {
+        if (schedule.weekDay == selectedWeekDay) {
+          schedules.sort((a, b) =>
+              (a.startTime.hour * 60 + a.startTime.minute).compareTo(b.startTime.hour * 60 + b.startTime.minute));
+          return Column(
+            children: [
+              SizedBox(
+                height: 100,
+                child: Row(
+                  children: [
+                    _buildScheduleTime(schedule),
+                    _buildScheduleCalendar(schedule),
+                  ],
+                ),
+              ),
+              _buildScheduleDivider(schedule),
+            ],
+          );
+        } else {
+          return Container();
+        }
+      }).toList(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: Stack(
+      floatingActionButton: _buildAddScheduleButton(),
+      body: Column(
         children: [
-          ListView(
-            children: [
-              _buildWeekButtons(),
-              _buildTimeColumn(),
-            ],
-          ),
-          Positioned(bottom: 25, right: 25, child: _buildAddScheduleButton())
+          _buildWeekButtons(),
+          const SizedBox(height: 16.0),
+          Expanded(child: SingleChildScrollView(child: _buildTimeTable())),
         ],
       ),
     );

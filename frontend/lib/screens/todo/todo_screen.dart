@@ -121,14 +121,11 @@ class _TodoScreenState extends State<TodoScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-        actions: [
-          if (_selectionMode) _buildActionButtons(),
-        ],
-        body: Stack(
-          children: [
-            _buildTodoList(),
-            Positioned(bottom: 25, right: 25, child: _buildCreateTodoButton()),
-          ],
-        ));
+      floatingActionButton: _buildCreateTodoButton(),
+      actions: [
+        if (_selectionMode) _buildActionButtons(),
+      ],
+      body: _buildTodoList(),
+    );
   }
 }
