@@ -119,25 +119,51 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.only(left: 24.0, right: 32.0),
-        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: schedule.color.withOpacity(0.6),
           borderRadius: BorderRadius.circular(12.0),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(schedule.title, style: const TextStyle().copyWith(fontWeight: FontWeight.bold)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (schedule.description != null)
-                  Text(schedule.description!, style: const TextStyle().copyWith(color: Colors.black.withOpacity(0.4))),
-                if (schedule.room != null) Text(schedule.room!),
-              ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: Dismissible(
+            key: Key(schedule.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: const Icon(Icons.delete, color: Colors.white),
             ),
-          ],
+            onDismissed: (direction) {
+              setState(() {
+                schedules.remove(schedule);
+                CalendarService.deleteSchedule(schedule);
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${schedule.title} bol vymazaný')),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(schedule.title, style: const TextStyle().copyWith(fontWeight: FontWeight.bold)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (schedule.description != null)
+                        Text(schedule.description!,
+                            style: const TextStyle().copyWith(color: Colors.black.withOpacity(0.4))),
+                      if (schedule.room != null) Text(schedule.room!),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
