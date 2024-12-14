@@ -50,6 +50,34 @@ class _TodoCardState extends State<TodoCard> {
     );
   }
 
+  Widget _buildDateTimeWidget() {
+    if (widget.todo.date != null) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: IntrinsicHeight(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.blue[100],
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(widget.todo.date!.toIso8601String().substring(0, 10)),
+                  if (widget.todo.time != null) Text(widget.todo.time.toString().substring(10, 15)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
   Widget _buildContent(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -82,6 +110,7 @@ class _TodoCardState extends State<TodoCard> {
           Expanded(
             child: widget.todo.description == null ? _buildText(context) : _buildTextWithDescription(context),
           ),
+          _buildDateTimeWidget(),
           const Icon(Icons.arrow_forward),
         ],
       ),

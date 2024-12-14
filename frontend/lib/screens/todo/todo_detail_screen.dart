@@ -26,8 +26,13 @@ class TodoDetailScreen extends StatelessWidget {
         ),
       ],
       body: Center(
-        child: todo.description == null ? Container() : Text(todo.description!),
-      ),
+          child: Column(
+        children: [
+          if (todo.description != null) Text(todo.description!),
+          if (todo.date != null) Text(todo.date!.toString()),
+          if (todo.time != null) Text(todo.time!.toString()),
+        ],
+      )),
     );
   }
 }
