@@ -9,16 +9,30 @@ import 'package:frontend/theme/all_themes.dart';
 import 'package:frontend/theme/app_theme.dart';
 
 class TodoScreen extends StatefulWidget {
-  const TodoScreen({super.key});
+  final List<TodoModel>? todos;
+
+  const TodoScreen({super.key, this.todos});
 
   @override
   State<TodoScreen> createState() => _TodoScreenState();
 }
 
 class _TodoScreenState extends State<TodoScreen> {
-  List<TodoModel> todos = TodoService.getTodos();
+  late List<TodoModel> todos;
   List<TodoModel> selectedTodos = [];
   bool _selectionMode = false;
+  bool _showFloatingActionButton = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.todos != null) {
+      todos = widget.todos!;
+      _showFloatingActionButton = false;
+    } else {
+      todos = TodoService.getTodos();
+    }
+  }
 
   Widget _buildActionButtons() {
     return Row(
@@ -121,7 +135,7 @@ class _TodoScreenState extends State<TodoScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      floatingActionButton: _buildCreateTodoButton(),
+      floatingActionButton: _showFloatingActionButton ? _buildCreateTodoButton() : null,
       actions: [
         if (_selectionMode) _buildActionButtons(),
       ],

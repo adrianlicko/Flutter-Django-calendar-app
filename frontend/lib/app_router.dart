@@ -21,7 +21,10 @@ GoRouter router = GoRouter(
     GoRoute(
       name: 'todo',
       path: '/todo',
-      builder: (context, state) => const TodoScreen(),
+      builder: (context, state) {
+        final todos = state.extra as List<TodoModel>?;
+        return TodoScreen(todos: todos);
+      },
     ),
     GoRoute(
       name: 'todoDetail',
