@@ -65,8 +65,10 @@ class _TodoCardState extends State<TodoCard> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(widget.todo.date!.toIso8601String().substring(0, 10)),
-                  if (widget.todo.time != null) Text(widget.todo.time.toString().substring(10, 15)),
+                  Text(widget.todo.date!.toIso8601String().substring(0, 10),
+                      style: Theme.of(context).textTheme.bodySmall),
+                  if (widget.todo.time != null)
+                    Text(widget.todo.time.toString().substring(10, 15), style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),
@@ -126,13 +128,14 @@ class _TodoCardState extends State<TodoCard> {
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Opacity(
           opacity: widget.todo.isCompleted ? 0.5 : 1.0,
-          child: Container(
-            height: 70,
-            decoration: BoxDecoration(
-              color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
-              borderRadius: BorderRadius.circular(12.0),
+          child: IntrinsicHeight(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: _buildContent(context),
             ),
-            child: _buildContent(context),
           ),
         ),
       ),

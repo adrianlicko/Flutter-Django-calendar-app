@@ -69,6 +69,26 @@ class TodoService {
         description: "Nejaky popis",
         date: DateTime(2024, 12, 9),
         time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 30))),
+    TodoModel(
+      id: "13234323",
+      title: "Romannn",
+      description: "Nejaky popis",
+      date: DateTime(2024, 12, 9),
+      // time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 30))
+    ),
+    TodoModel(
+        id: "13234323",
+        title: "S adsad",
+        description: "Nejaky popis",
+        // date: DateTime(2024, 12, 9),
+        time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 32))),
+    TodoModel(
+      id: "13234323",
+      title: "S adsad",
+      description: "Nejaky popis",
+      // date: DateTime(2024, 12, 9),
+      // time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 30))
+    ),
   ];
 
   static List<TodoModel> getTodos() {
@@ -79,23 +99,24 @@ class TodoService {
     return getTodos().where((todo) => !todo.isCompleted).toList();
   }
 
-  // static List<TodoModel> getTodosForDateWithTime(DateTime date) {
-  //   return getNotCompletedTodos().where((todo) {
-  //     return (todo.date != null && todo.date!.isAtSameMomentAs(date)) ||
-  //         (todo.time != null && todo.time!.hour == date.hour && todo.time!.minute == date.minute);
-  //   }).toList();
-  // }
-
-  static List<TodoModel> getTodosForDateWithTime(DateTime date) {
+  static List<TodoModel> getTodosForDate(DateTime date) {
     return getNotCompletedTodos().where((todo) {
       if (todo.date == null) return false;
       return todo.date!.isAtSameMomentAs(date);
     }).toList();
   }
 
+  static List<TodoModel> getTodosForDateWithTime(DateTime date) {
+    return getNotCompletedTodos().where((todo) {
+      if (todo.date == null) return false;
+      return todo.date!.isAtSameMomentAs(date) && todo.time != null;
+    }).toList();
+  }
+
   static List<TodoModel> getTodosForDateWithoutTime(DateTime date) {
     return getNotCompletedTodos().where((todo) {
-      return todo.date != null && todo.date!.isAtSameMomentAs(date) && todo.time == null;
+      if (todo.date == null) return false;
+      return todo.date!.isAtSameMomentAs(date) && todo.time == null;
     }).toList();
   }
 

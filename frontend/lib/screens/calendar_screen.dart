@@ -79,21 +79,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Column(
       children: [
         Container(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(12.0),
               color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
             ),
-            child: Text(dayLabel, style: const TextStyle(color: Colors.white))),
+            child: Text(dayLabel, style: Theme.of(context).textTheme.titleMedium)),
         const SizedBox(height: 4.0),
-        SizedBox(width: 58, child: Center(child: Text(dateLabel))),
+        SizedBox(
+            width: 58,
+            child: Center(
+                child: Text(dateLabel,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall!
+                        .copyWith(color: Colors.black, fontWeight: FontWeight.normal)))),
       ],
     );
   }
 
   Widget _buildCurrentDayButton(String dayLabel, String dateLabel) {
     return Container(
-      padding: const EdgeInsets.only(top: 6.0, bottom: 4.0),
+      padding: const EdgeInsets.only(top: 6.0, bottom: 4.0, right: 4.0, left: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
         color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor.withOpacity(0.2),
@@ -107,7 +114,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: List.generate(5, (index) {
+      children: List.generate(weekDays.length, (index) {
         DateTime date = monday.add(Duration(days: index));
         String dayLabel = weekDays.keys.elementAt(index);
         String dateLabel = '${date.day}.${date.month}.';
@@ -172,7 +179,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 children: [
                                   const Icon(Icons.check_circle_outline_outlined, color: Colors.black),
                                   const SizedBox(width: 2.0),
-                                  Text(todo.title),
+                                  Text(todo.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall!
+                                          .copyWith(color: Colors.black, fontWeight: FontWeight.normal)),
                                 ],
                               ),
                             ),
@@ -241,14 +252,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(schedule.title, style: const TextStyle().copyWith(fontWeight: FontWeight.bold)),
+                  Text(schedule.title, style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.black)),
                   if (todos != null && todos.isNotEmpty) _buildTodoTitles(todos, schedule.color),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if (schedule.description != null)
                         Text(schedule.description!,
-                            style: const TextStyle().copyWith(color: Colors.black.withOpacity(0.4))),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(color: Colors.black.withOpacity(0.5), fontWeight: FontWeight.normal)),
                       if (schedule.room != null) Text(schedule.room!),
                     ],
                   ),
@@ -316,6 +330,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildTimeTable() {
+    List<TodoModel> selectedDayTodosWithoutTime = TodoService.getTodosForDateWithoutTime(selectedDate);
     List<TodoModel> selectedDayTodosWithTime = TodoService.getTodosForDateWithTime(selectedDate);
     List<TodoModel> todosWithoutScheduleCollision = List.from(selectedDayTodosWithTime);
     List<ScheduleModel> sortedSchedules = schedules.where((schedule) => schedule.weekDay == selectedWeekDay).toList();
@@ -325,9 +340,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     // Sort todos without collision by time
     todosWithoutScheduleCollision.sort((a, b) {
-      if (a.time == null && b.time == null) return 0;
-      if (a.time == null) return 1;
-      if (b.time == null) return -1;
       return (a.time!.hour * 60 + a.time!.minute).compareTo(b.time!.hour * 60 + b.time!.minute);
     });
 
@@ -448,6 +460,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
         todoIndex++;
       }
     }
+
+    // TODO doesnt work
+    selectedDayTodosWithoutTime.map((todo) {
+      timetableWidgets.add(
+        Column(
+          children: [
+            _buildTodo(todosWithoutScheduleCollision, todo),
+            (selectedDayTodosWithoutTime.indexOf(todo) == (selectedDayTodosWithoutTime.length - 1))
+                ? _buildDivider(true)
+                : _buildDivider(false),
+          ],
+        ),
+      );
+      todoIndex++;
+    });
 
     return Column(
       children: timetableWidgets,
