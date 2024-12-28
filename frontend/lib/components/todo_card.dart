@@ -10,6 +10,7 @@ class TodoCard extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final VoidCallback onCompletedChanged;
+  final bool withVerticalPadding;
 
   const TodoCard({
     super.key,
@@ -19,6 +20,7 @@ class TodoCard extends StatefulWidget {
     required this.onTap,
     required this.onLongPress,
     required this.onCompletedChanged,
+    this.withVerticalPadding = true,
   });
 
   @override
@@ -82,22 +84,26 @@ class _TodoCardState extends State<TodoCard> {
 
   Widget _buildContent(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.only(left: 8.0, right: 16.0, top: 1.0, bottom: 1.0),
       child: Row(
         children: [
           if (widget.selectionMode)
-            Transform.scale(
-              scale: 1.3,
-              child: Checkbox(
-                fillColor: WidgetStateProperty.all(Colors.white),
-                checkColor: Colors.black,
-                value: widget.isSelected,
-                onChanged: (bool? value) {
-                  widget.onTap();
-                },
-              ),
+            Row(
+              children: [
+                Transform.scale(
+                  scale: 1.3,
+                  child: Checkbox(
+                    fillColor: WidgetStateProperty.all(Colors.white),
+                    checkColor: Colors.black,
+                    value: widget.isSelected,
+                    onChanged: (bool? value) {
+                      widget.onTap();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 4.0),
+              ],
             ),
-          const SizedBox(width: 8.0),
           AnimatedRotation(
             turns: rotationTurns,
             duration: const Duration(milliseconds: 250),
@@ -125,7 +131,7 @@ class _TodoCardState extends State<TodoCard> {
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: EdgeInsets.symmetric(vertical: widget.withVerticalPadding ? 8.0 : 0.0, horizontal: 16.0),
         child: Opacity(
           opacity: widget.todo.isCompleted ? 0.5 : 1.0,
           child: IntrinsicHeight(

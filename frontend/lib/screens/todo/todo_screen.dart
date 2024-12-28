@@ -127,7 +127,7 @@ class _TodoScreenState extends State<TodoScreen> {
           color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
-        child: const Icon(Icons.playlist_add, size: 30),
+        child: const Icon(Icons.add_task_outlined, size: 35),
       ),
     );
   }

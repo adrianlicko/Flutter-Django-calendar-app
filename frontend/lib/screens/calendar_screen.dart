@@ -3,6 +3,7 @@ import 'package:frontend/app_router.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_time_dialog.dart';
+import 'package:frontend/dialogs/create_todo_dialog.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/calendar_service.dart';
@@ -70,7 +71,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
           color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
-        child: const Icon(Icons.playlist_add, size: 30),
+        child: const Icon(Icons.playlist_add, size: 35),
+      ),
+    );
+  }
+
+  Future<void> _showCreateTodoDialog() async {
+    final newTodo = await showDialog<TodoModel>(
+      context: context,
+      builder: (BuildContext context) {
+        return const CreateTodoDialog();
+      },
+    );
+
+    if (newTodo != null) {
+      setState(() {});
+    }
+  }
+
+  Widget _buildCreateTodoButton() {
+    return GestureDetector(
+      onTap: _showCreateTodoDialog,
+      child: Container(
+        width: 45,
+        height: 45,
+        decoration: BoxDecoration(
+          color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+          borderRadius: const BorderRadius.all(Radius.circular(50)),
+        ),
+        child: const Icon(Icons.add_task_outlined, size: 28),
       ),
     );
   }
@@ -281,9 +310,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     } else {
       return const Column(
         children: [
-          SizedBox(height: 4.0),
           Divider(indent: 8.0, endIndent: 8.0),
-          SizedBox(height: 4.0),
         ],
       );
     }
@@ -292,6 +319,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _buildTodo(List<TodoModel> todosWithoutScheduleCollision, TodoModel todo) {
     return TodoCard(
       todo: todo,
+      withVerticalPadding: false,
       selectionMode: _selectionMode,
       isSelected: selectedTodos.contains(todo),
       onLongPress: () {
@@ -484,7 +512,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      floatingActionButton: _buildAddScheduleButton(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildCreateTodoButton(),
+          const SizedBox(width: 10),
+          _buildAddScheduleButton(),
+        ],
+      ),
       actions: [
         if (_selectionMode) _buildActionButtons(),
       ],
