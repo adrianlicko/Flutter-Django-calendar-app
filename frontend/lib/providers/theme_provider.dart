@@ -3,7 +3,7 @@ import 'package:frontend/theme/all_themes.dart';
 import 'package:frontend/theme/app_theme.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  AllAppColors _currentTheme = AllAppColors.lightBlueColorScheme;
+  AllAppColors _currentTheme = AllAppColors.darkRedColorScheme;
 
   ThemeData get themeData => AppTheme.getThemeFromColors(_currentTheme);
 

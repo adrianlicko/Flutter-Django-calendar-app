@@ -6,11 +6,11 @@ import 'package:frontend/dialogs/create_time_dialog.dart';
 import 'package:frontend/dialogs/create_todo_dialog.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/models/todo_model.dart';
+import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/services/calendar_service.dart';
 import 'package:frontend/services/todo_service.dart';
-import 'package:frontend/theme/all_themes.dart';
-import 'package:frontend/theme/app_theme.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -81,8 +81,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+          color: Theme.of(context).primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, blurRadius: 10, offset: Offset(0, 5)),
+          ],
         ),
         child: const Icon(Icons.playlist_add, size: 35),
       ),
@@ -109,22 +112,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
         width: 45,
         height: 45,
         decoration: BoxDecoration(
-          color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+          color: Theme.of(context).primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, blurRadius: 10, offset: Offset(0, 5)),
+          ],
         ),
         child: const Icon(Icons.add_task_outlined, size: 28),
       ),
     );
   }
 
-  Widget _buildDayButton(String dayLabel, String dateLabel) {
+  Widget _buildDayButton(String dayLabel, String dateLabel, {Color? dateColor}) {
+    Color? color = dateColor;
+    color ??= Provider.of<ThemeProvider>(context).currentTheme.textColor;
+
     return Column(
       children: [
         Container(
             padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
-              color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+              color: Theme.of(context).primaryColor,
             ),
             child: Text(dayLabel, style: Theme.of(context).textTheme.titleMedium)),
         const SizedBox(height: 4.0),
@@ -135,7 +144,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall!
-                        .copyWith(color: Colors.black, fontWeight: FontWeight.normal)))),
+                        .copyWith(color: color, fontWeight: FontWeight.normal)))),
       ],
     );
   }
@@ -145,9 +154,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
       padding: const EdgeInsets.only(top: 6.0, bottom: 4.0, right: 4.0, left: 4.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8.0),
-        color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor.withOpacity(0.2),
+        color: Theme.of(context).primaryColorLight,
       ),
-      child: _buildDayButton(dayLabel, dateLabel),
+      child: _buildDayButton(dayLabel, dateLabel, dateColor: Colors.black),
     );
   }
 
@@ -222,10 +231,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   const Icon(Icons.check_circle_outline_outlined, color: Colors.black),
                                   const SizedBox(width: 2.0),
                                   Text(todo.title,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(color: Colors.black, fontWeight: FontWeight.normal)),
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.black)),
                                 ],
                               ),
                             ),
@@ -236,6 +242,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             : IntrinsicWidth(
                 child: GestureDetector(
                   onTap: () {
+                    // todo handle removed or completed todos
                     router.push('/todo', extra: todos);
                   },
                   child: Container(
@@ -250,7 +257,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         children: [
                           const Icon(Icons.check_circle_outline_outlined, color: Colors.black),
                           const SizedBox(width: 2.0),
-                          Text(todos.length.toString()),
+                          Text(todos.length.toString(),
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.black)),
                         ],
                       ),
                     ),
@@ -271,10 +279,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           borderRadius: BorderRadius.circular(12.0),
           child: Dismissible(
             key: Key(schedule.id),
-            direction: DismissDirection.endToStart,
+            direction: DismissDirection.startToEnd,
             background: Container(
               color: Colors.red,
-              alignment: Alignment.centerRight,
+              alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: const Icon(Icons.delete, color: Colors.white),
             ),
@@ -304,8 +312,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall!
-                                .copyWith(color: Colors.black.withOpacity(0.5), fontWeight: FontWeight.normal)),
-                      if (schedule.room != null) Text(schedule.room!),
+                                .copyWith(color: Colors.black.withOpacity(0.7), fontWeight: FontWeight.normal)),
+                      if (schedule.room != null)
+                        Text(schedule.room!,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.black)),
                     ],
                   ),
                 ],

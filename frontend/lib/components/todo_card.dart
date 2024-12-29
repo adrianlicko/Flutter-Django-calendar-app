@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/todo_model.dart';
-import 'package:frontend/theme/all_themes.dart';
-import 'package:frontend/theme/app_theme.dart';
 
 class TodoCard extends StatefulWidget {
   final TodoModel todo;
@@ -59,7 +57,7 @@ class _TodoCardState extends State<TodoCard> {
         child: IntrinsicHeight(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.blue[100],
+              color: Theme.of(context).primaryColorLight,
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Padding(
@@ -68,9 +66,10 @@ class _TodoCardState extends State<TodoCard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(widget.todo.date!.toIso8601String().substring(0, 10),
-                      style: Theme.of(context).textTheme.bodySmall),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.black)),
                   if (widget.todo.time != null)
-                    Text(widget.todo.time.toString().substring(10, 15), style: Theme.of(context).textTheme.bodySmall),
+                    Text(widget.todo.time.toString().substring(10, 15),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Colors.black)),
                 ],
               ),
             ),
@@ -135,7 +134,7 @@ class _TodoCardState extends State<TodoCard> {
           child: IntrinsicHeight(
             child: Container(
               decoration: BoxDecoration(
-                color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(12.0),
               ),
               child: _buildContent(context),

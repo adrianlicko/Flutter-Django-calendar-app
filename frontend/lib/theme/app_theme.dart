@@ -6,18 +6,20 @@ class AppTheme {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: theme.primaryColor),
       primaryColor: theme.primaryColor,
+      primaryColorDark: theme.primaryColorDark,
+      primaryColorLight: theme.primaryColorLight,
+      scaffoldBackgroundColor: theme.scaffoldBackgroundColor,
       cardTheme: CardTheme(color: theme.primaryColor),
       listTileTheme: ListTileThemeData(iconColor: theme.appbarIconColor, textColor: theme.textColor),
       iconTheme: IconThemeData(color: theme.iconColor),
       floatingActionButtonTheme:
           FloatingActionButtonThemeData(backgroundColor: theme.primaryColor, foregroundColor: theme.iconColor),
-      scaffoldBackgroundColor: theme.secondaryAccent,
       appBarTheme: AppBarTheme(
-          backgroundColor: theme.secondaryAccent,
+          backgroundColor: theme.scaffoldBackgroundColor,
           foregroundColor: theme.textColor,
           iconTheme: IconThemeData(color: theme.appbarIconColor)),
       checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.all(theme.primaryAccent),
+        fillColor: WidgetStateProperty.all(theme.primaryColorDark),
         checkColor: WidgetStateProperty.all(Colors.white),
       ),
       textTheme: TextTheme(
@@ -74,10 +76,10 @@ class AppTheme {
         floatingLabelStyle: TextStyle(color: theme.textColor),
       ),
       drawerTheme: DrawerThemeData(
-        backgroundColor: theme.secondaryAccent,
+        backgroundColor: theme.scaffoldBackgroundColor,
       ),
       dialogTheme: DialogTheme(
-        backgroundColor: theme.secondaryAccent,
+        backgroundColor: theme.scaffoldBackgroundColor,
         titleTextStyle: TextStyle(
           color: theme.textColor,
           fontSize: 24,

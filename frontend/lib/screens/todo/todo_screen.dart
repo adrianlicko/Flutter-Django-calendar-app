@@ -5,8 +5,6 @@ import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_todo_dialog.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/todo_service.dart';
-import 'package:frontend/theme/all_themes.dart';
-import 'package:frontend/theme/app_theme.dart';
 
 class TodoScreen extends StatefulWidget {
   final List<TodoModel>? todos;
@@ -124,8 +122,11 @@ class _TodoScreenState extends State<TodoScreen> {
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor,
+          color: Theme.of(context).primaryColor,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, blurRadius: 10, offset: Offset(0, 5)),
+          ],
         ),
         child: const Icon(Icons.add_task_outlined, size: 35),
       ),

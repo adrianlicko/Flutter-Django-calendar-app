@@ -4,7 +4,6 @@ import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/theme/all_themes.dart';
-import 'package:frontend/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -45,8 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Transform.scale(
             scale: 1.3,
             child: IconButton(
-                onPressed: onTap,
-                icon: Icon(Icons.edit_outlined, color: AllAppColors.lightBlueColorScheme.primaryAccent))),
+                onPressed: onTap, icon: Icon(Icons.edit_outlined, color: Theme.of(context).primaryColorDark))),
       ],
     );
   }
@@ -68,8 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           margin: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            border: Border.all(
-                color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor, width: 2.0),
+            border: Border.all(color: Theme.of(context).primaryColor, width: 2.0),
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Column(
@@ -80,12 +77,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             top: 5,
             left: 25,
             child: Container(
-              color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).scaffoldBackgroundColor,
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: Text(title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall!
-                      .copyWith(color: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme).primaryColor)),
+                  style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Theme.of(context).primaryColor)),
             )),
       ],
     );
@@ -117,6 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildDropdownOption(
             title: AppLocalizations.of(context)!.changeLanguage,
             dropdownButton: DropdownButton<Locale>(
+              dropdownColor: themeProvider.currentTheme.secondaryColor,
               value: localeProvider.locale,
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
@@ -127,7 +122,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
                 return DropdownMenuItem(
                   value: locale,
-                  child: Text(flag, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.black)),
+                  child: Text(flag,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(color: Provider.of<ThemeProvider>(context).currentTheme.textColor)),
                 );
               }).toList(),
             ),
@@ -135,6 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildDropdownOption(
             title: AppLocalizations.of(context)!.changeTheme,
             dropdownButton: DropdownButton<AllAppColors>(
+              dropdownColor: themeProvider.currentTheme.secondaryColor,
               value: themeProvider.currentTheme,
               onChanged: (AllAppColors? newTheme) {
                 if (newTheme != null) {
@@ -145,7 +145,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 return DropdownMenuItem(
                   value: theme,
                   child: Text(theme.toString().split('.').last,
-                      style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.black)),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall!
+                          .copyWith(color: Provider.of<ThemeProvider>(context).currentTheme.textColor)),
                 );
               }).toList(),
             ),
@@ -164,7 +167,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Icon(Icons.person, size: 50.0),
         ),
         const SizedBox(height: 16.0),
-        Text("Name Surname", style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.black)),
+        Text("Name Surname",
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).primaryColor)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [Text("nejaky email", style: Theme.of(context).textTheme.bodyMedium)]),
