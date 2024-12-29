@@ -93,8 +93,6 @@ class _TodoCardState extends State<TodoCard> {
                 Transform.scale(
                   scale: 1.3,
                   child: Checkbox(
-                    fillColor: WidgetStateProperty.all(Colors.white),
-                    checkColor: Colors.black,
                     value: widget.isSelected,
                     onChanged: (bool? value) {
                       widget.onTap();

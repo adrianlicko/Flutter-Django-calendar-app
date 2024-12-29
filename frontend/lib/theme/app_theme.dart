@@ -16,7 +16,16 @@ class AppTheme {
           backgroundColor: theme.secondaryAccent,
           foregroundColor: theme.textColor,
           iconTheme: IconThemeData(color: theme.appbarIconColor)),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.all(theme.primaryAccent),
+        checkColor: WidgetStateProperty.all(Colors.white),
+      ),
       textTheme: TextTheme(
+          bodyLarge: TextStyle(
+            color: theme.textColor,
+            fontSize: 18,
+            letterSpacing: 1,
+          ),
           bodyMedium: TextStyle(
             color: theme.textColor,
             fontSize: 16,

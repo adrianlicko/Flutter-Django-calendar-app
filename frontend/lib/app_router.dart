@@ -1,6 +1,7 @@
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/screens/calendar_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
+import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/screens/todo/todo_detail_screen.dart';
 import 'package:frontend/screens/todo/todo_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -34,5 +35,11 @@ GoRouter router = GoRouter(
         return TodoDetailScreen(todo: todo);
       },
     ),
+    GoRoute(
+        name: 'profile',
+        path: '/profile',
+        builder: (context, state) {
+          return const ProfileScreen();
+        }),
   ],
 );
