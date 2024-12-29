@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
+import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:frontend/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -46,6 +50,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildDropdownOption({required String title, required Widget dropdownButton}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(child: Text(title, style: Theme.of(context).textTheme.bodyMedium)),
+        dropdownButton,
+      ],
+    );
+  }
+
   Widget _buildSection({required String title, required List<Widget> options}) {
     return Stack(
       children: [
@@ -77,18 +91,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSections() {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+
     return Column(
       children: [
-        _buildSection(title: "Profile", options: [
-          _buildEditOption(title: "Change email", onTap: () {}),
-          _buildEditOption(title: "Change password", onTap: () {})
+        _buildSection(title: AppLocalizations.of(context)!.profile, options: [
+          _buildEditOption(title: AppLocalizations.of(context)!.changeEmail, onTap: () {}),
+          _buildEditOption(title: AppLocalizations.of(context)!.changePassword, onTap: () {})
         ]),
         const SizedBox(height: 16.0),
-        _buildSection(title: "Calendar/Todo", options: [
-          _buildOption(title: "Show todo tasks in calendar", isEnabled: true, onTap: () {}),
-          _buildOption(
-              title: "Remove todo tasks from calendar when completed", isEnabled: true, onTap: () {}, isNested: true)
-        ]),
+        _buildSection(
+            title: "${AppLocalizations.of(context)!.calendar}/${AppLocalizations.of(context)!.todoTasks}",
+            options: [
+              _buildOption(title: AppLocalizations.of(context)!.showTodoTasksInCalendar, isEnabled: true, onTap: () {}),
+              _buildOption(
+                  title: AppLocalizations.of(context)!.removeTodoFromCalendarWhenCompleted,
+                  isEnabled: true,
+                  onTap: () {},
+                  isNested: true)
+            ]),
+        const SizedBox(height: 16.0),
+        _buildSection(title: AppLocalizations.of(context)!.applicationSettings, options: [
+          _buildDropdownOption(
+            title: AppLocalizations.of(context)!.changeLanguage,
+            dropdownButton: DropdownButton<Locale>(
+              value: localeProvider.locale,
+              onChanged: (Locale? newLocale) {
+                if (newLocale != null) {
+                  localeProvider.setLocale(newLocale);
+                }
+              },
+              items: L10n.all.map((Locale locale) {
+                final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
+                return DropdownMenuItem(
+                  value: locale,
+                  child: Text(flag, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.black)),
+                );
+              }).toList(),
+            ),
+          )
+        ])
       ],
     );
   }

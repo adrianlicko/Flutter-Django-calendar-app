@@ -10,6 +10,7 @@ import 'package:frontend/services/calendar_service.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:frontend/theme/app_theme.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -19,7 +20,7 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  Map<String, int> weekDays = {'Po': 1, 'Ut': 2, 'St': 3, 'Št': 4, 'Pi': 5};
+  late Map<String, int> weekDays;
   DateTime now = DateTime.now();
   int currentWeekDay = DateTime.now().weekday;
   int selectedWeekDay = DateTime.now().weekday;
@@ -27,6 +28,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<ScheduleModel> schedules = CalendarService.getSchedules();
   List<TodoModel> selectedTodos = [];
   bool _selectionMode = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    weekDays = {
+      AppLocalizations.of(context)!.mondayShortcut: 1,
+      AppLocalizations.of(context)!.tuesdayShortcut: 2,
+      AppLocalizations.of(context)!.wednesdayShortcut: 3,
+      AppLocalizations.of(context)!.thursdayShortcut: 4,
+      AppLocalizations.of(context)!.fridayShortcut: 5,
+    };
+  }
 
   Widget _buildActionButtons() {
     return Row(
@@ -272,7 +285,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               });
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${schedule.title} bol vymazaný')),
+                SnackBar(content: Text('${schedule.title} ${AppLocalizations.of(context)!.wasRemoved}')),
               );
             },
             child: Padding(

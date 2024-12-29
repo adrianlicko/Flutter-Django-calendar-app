@@ -3,6 +3,7 @@ import 'package:frontend/app_router.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/card_banner.dart';
 import 'dart:math' as math;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -75,17 +76,17 @@ class HomeScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CardBanner(
-            title: "Calendar",
+            title: AppLocalizations.of(context)!.calendar,
             gradientColors: [Colors.blue[700]!, Colors.blue],
             icon: _buildCalendarIcon(),
             onTap: () => router.push('/calendar')),
         CardBanner(
-            title: "To Do",
+            title: AppLocalizations.of(context)!.todoTasks,
             gradientColors: [Colors.red[700]!, Colors.purple],
             icon: _buildTodoIcon(),
             onTap: () => router.push('/todo')),
         CardBanner(
-          title: "Profile",
+          title: AppLocalizations.of(context)!.profile,
           gradientColors: [Colors.grey[700]!, Colors.grey],
           icon: _buildProfileIcon(),
           halfWidth: true,

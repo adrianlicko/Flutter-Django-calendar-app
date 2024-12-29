@@ -1,0 +1,17 @@
+{
+  "mondayShortcut": "Mo",
+  "tuesdayShortcut": "Tu",
+  "wednesdayShortcut": "We",
+  "thursdayShortcut": "Th",
+  "fridayShortcut": "Fr",
+  "wasRemoved": "was removed",
+  "calendar": "Calendar",
+  "todoTasks": "To Do tasks",
+  "profile": "Profile",
+  "changeEmail": "Change email",
+  "changePassword": "Change password",
+  "showTodoTasksInCalendar": "Show todo tasks in calendar",
+  "removeTodoFromCalendarWhenCompleted": "Remove To Do task from calendar when it`s completed",
+  "applicationSettings": "Application settings",
+  "changeLanguage": "Change language"
+}
