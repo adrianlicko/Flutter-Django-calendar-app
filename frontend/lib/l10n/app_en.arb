@@ -13,5 +13,6 @@
   "showTodoTasksInCalendar": "Show todo tasks in calendar",
   "removeTodoFromCalendarWhenCompleted": "Remove To Do task from calendar when it`s completed",
   "applicationSettings": "Application settings",
-  "changeLanguage": "Change language"
+  "changeLanguage": "Change language",
+  "changeTheme": "Change theme"
 }

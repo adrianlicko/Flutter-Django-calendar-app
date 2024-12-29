@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/providers/locale_provider.dart';
+import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:frontend/theme/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -92,6 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSections() {
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Column(
       children: [
@@ -129,7 +131,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }).toList(),
             ),
-          )
+          ),
+          _buildDropdownOption(
+            title: AppLocalizations.of(context)!.changeTheme,
+            dropdownButton: DropdownButton<AllAppColors>(
+              value: themeProvider.currentTheme,
+              onChanged: (AllAppColors? newTheme) {
+                if (newTheme != null) {
+                  themeProvider.setTheme(newTheme);
+                }
+              },
+              items: AllAppColors.values.map((AllAppColors theme) {
+                return DropdownMenuItem(
+                  value: theme,
+                  child: Text(theme.toString().split('.').last,
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.black)),
+                );
+              }).toList(),
+            ),
+          ),
         ])
       ],
     );

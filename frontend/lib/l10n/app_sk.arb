@@ -13,5 +13,6 @@
   "showTodoTasksInCalendar": "Zobraziť To Do úlohy v kalendáry",
   "removeTodoFromCalendarWhenCompleted": "Vymazať To Do úlohu z kalendára po jej dokončení",
   "applicationSettings": "Nastavenia aplikácie",
-  "changeLanguage": "Zmeniť jazyk"
+  "changeLanguage": "Zmeniť jazyk",
+  "changeTheme": "Zmeniť tému"
 }

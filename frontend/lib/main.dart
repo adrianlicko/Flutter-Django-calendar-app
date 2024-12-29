@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/providers/locale_provider.dart';
-import 'package:frontend/theme/all_themes.dart';
-import 'package:frontend/theme/app_theme.dart';
+import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/app_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => LocaleProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -24,6 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp.router(
       locale: localeProvider.locale,
@@ -36,7 +39,7 @@ class MyApp extends StatelessWidget {
       ],
       debugShowCheckedModeBanner: false,
       routerConfig: router,
-      theme: AppTheme.getThemeFromColors(AllAppColors.lightBlueColorScheme),
+      theme: themeProvider.themeData,
     );
   }
 }
