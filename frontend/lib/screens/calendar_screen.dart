@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app_router.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_time_dialog.dart';
@@ -10,6 +9,7 @@ import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/services/calendar_service.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -210,7 +210,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 children: todos
                     .map((todo) => GestureDetector(
                           onTap: () async {
-                            final potentiallyDeletedTodo = await router.push('/todo_detail', extra: todo);
+                            final potentiallyDeletedTodo = await context.push('/todo_detail', extra: todo);
                             if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
                               setState(() {
                                 todos.remove(potentiallyDeletedTodo);
@@ -243,7 +243,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 child: GestureDetector(
                   onTap: () {
                     // todo handle removed or completed todos
-                    router.push('/todo', extra: todos);
+                    context.push('/todo', extra: todos);
                   },
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -364,7 +364,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             }
           });
         } else {
-          final potentiallyDeletedTodo = await router.push('/todo_detail', extra: todo);
+          final potentiallyDeletedTodo = await context.push('/todo_detail', extra: todo);
           if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
             setState(() {
               todosWithoutScheduleCollision.remove(potentiallyDeletedTodo);

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app_router.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_todo_dialog.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/todo_service.dart';
+import 'package:go_router/go_router.dart';
 
 class TodoScreen extends StatefulWidget {
   final List<TodoModel>? todos;
@@ -84,7 +84,7 @@ class _TodoScreenState extends State<TodoScreen> {
                 }
               });
             } else {
-              final potentiallyDeletedTodo = await router.push('/todo_detail', extra: todo);
+              final potentiallyDeletedTodo = await context.push('/todo_detail', extra: todo);
               if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
                 setState(() {
                   todos.remove(potentiallyDeletedTodo);

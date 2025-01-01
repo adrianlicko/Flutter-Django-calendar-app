@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app_router.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/card_banner.dart';
 import 'dart:math' as math;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -79,18 +79,18 @@ class HomeScreen extends StatelessWidget {
             title: AppLocalizations.of(context)!.calendar,
             gradientColors: [Colors.blue[700]!, Colors.blue],
             icon: _buildCalendarIcon(),
-            onTap: () => router.push('/calendar')),
+            onTap: () => context.push('/calendar')),
         CardBanner(
             title: AppLocalizations.of(context)!.todoTasks,
             gradientColors: [Colors.red[700]!, Colors.purple],
             icon: _buildTodoIcon(),
-            onTap: () => router.push('/todo')),
+            onTap: () => context.push('/todo')),
         CardBanner(
           title: AppLocalizations.of(context)!.profile,
           gradientColors: [Colors.grey[700]!, Colors.grey],
           icon: _buildProfileIcon(),
           halfWidth: true,
-          onTap: () => router.push('/profile'),
+          onTap: () => context.push('/profile'),
         ),
       ],
     ));

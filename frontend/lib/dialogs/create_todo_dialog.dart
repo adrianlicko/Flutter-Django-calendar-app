@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app_router.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/todo_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class CreateTodoDialog extends StatefulWidget {
@@ -124,7 +124,7 @@ class _CreateTodoDialogState extends State<CreateTodoDialog> {
         IconButton(
           icon: const Icon(Icons.cancel, color: Colors.red, size: 30),
           onPressed: () {
-            router.pop();
+            context.pop();
           },
         ),
         IconButton(
@@ -141,7 +141,7 @@ class _CreateTodoDialogState extends State<CreateTodoDialog> {
                 time: _selectedTime,
               );
               TodoService.addTodo(newTodo);
-              router.pop(newTodo);
+              context.pop(newTodo);
             }
           },
         ),

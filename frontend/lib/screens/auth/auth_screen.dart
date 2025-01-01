@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -120,9 +121,18 @@ class _AuthScreenState extends State<AuthScreen> {
             ])),
         _buildSubmitButton(
             label: AppLocalizations.of(context)!.register,
-            onPressed: () {
+            onPressed: () async {
               if (formKey.currentState!.validate()) {
-                // todo register
+                bool success = await Provider.of<AuthProvider>(context, listen: false).register(
+                    email: emailController.text,
+                    password: passwordController.text,
+                    firstName: firstNameController.text,
+                    lastName: lastNameController.text);
+                if (success) {
+                  // todo Navigate to home or show success message
+                } else {
+                  // todo Show error message
+                }
               }
             }),
         _buildSwitchAuthButton(
@@ -171,9 +181,15 @@ class _AuthScreenState extends State<AuthScreen> {
             ])),
         _buildSubmitButton(
             label: AppLocalizations.of(context)!.login,
-            onPressed: () {
+            onPressed: () async {
               if (formKey.currentState!.validate()) {
-                // todo login
+                bool success = await Provider.of<AuthProvider>(context, listen: false)
+                    .login(email: emailController.text, password: passwordController.text);
+                if (success) {
+                  // todo Navigate to home
+                } else {
+                  // todo Show error message
+                }
               }
             }),
         _buildSwitchAuthButton(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app_router.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/services/calendar_service.dart';
+import 'package:go_router/go_router.dart';
 
 class CreateTimeDialog extends StatefulWidget {
   final int selectedWeekDay;
@@ -191,7 +191,7 @@ class _CreateTimeDialogState extends State<CreateTimeDialog> {
         IconButton(
           icon: const Icon(Icons.cancel, color: Colors.red, size: 30),
           onPressed: () {
-            router.pop();
+            context.pop();
           },
         ),
         IconButton(
@@ -210,7 +210,7 @@ class _CreateTimeDialogState extends State<CreateTimeDialog> {
                 color: _selectedColor,
               );
               CalendarService.addSchedule(newSchedule);
-              router.pop(newSchedule);
+              context.pop(newSchedule);
             }
           },
         ),
