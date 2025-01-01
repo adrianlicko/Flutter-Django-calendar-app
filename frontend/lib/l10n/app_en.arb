@@ -14,5 +14,16 @@
   "removeTodoFromCalendarWhenCompleted": "Remove To Do task from calendar when it`s completed",
   "applicationSettings": "Application settings",
   "changeLanguage": "Change language",
-  "changeTheme": "Change theme"
+  "changeTheme": "Change theme",
+  "areaCannotBeEmpty": "Area can`t be empty",
+  "firstName": "Name",
+  "lastName": "Surname",
+  "email": "Email",
+  "incorrectEmailFormat": "Incorrect email format",
+  "password": "Password",
+  "passwordMustBeLonger": "Password must be at least 6 characters long",
+  "register": "Register",
+  "login": "Login",
+  "alreadyHaveAccount": "Already have account?",
+  "dontHaveAccountYet": "Don`t have account yet?"
 }

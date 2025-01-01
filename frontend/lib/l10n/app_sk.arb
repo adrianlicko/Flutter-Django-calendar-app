@@ -14,5 +14,16 @@
   "removeTodoFromCalendarWhenCompleted": "Vymazať To Do úlohu z kalendára po jej dokončení",
   "applicationSettings": "Nastavenia aplikácie",
   "changeLanguage": "Zmeniť jazyk",
-  "changeTheme": "Zmeniť tému"
+  "changeTheme": "Zmeniť tému",
+  "areaCannotBeEmpty": "Pole nesmie byť prázdne",
+  "firstName": "Meno",
+  "lastName": "Priezvisko",
+  "email": "Email",
+  "incorrectEmailFormat": "Email má nesprávny formát",
+  "password": "Heslo",
+  "passwordMustBeLonger": "Heslo musí mať aspoň 6 znakov",
+  "register": "Registrovať",
+  "login": "Prihlásiť",
+  "alreadyHaveAccount": "Už máte účet?",
+  "dontHaveAccountYet": "Ešte nemáte účet?"
 }
