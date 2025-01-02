@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_todo_dialog.dart';
+import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ class _TodoScreenState extends State<TodoScreen> {
       todos = widget.todos!;
       _showFloatingActionButton = false;
     } else {
-      todos = TodoService.getTodos();
+      todos = locator<TodoService>().getTodos();
     }
   }
 
@@ -39,7 +40,7 @@ class _TodoScreenState extends State<TodoScreen> {
           icon: const Icon(Icons.delete),
           onPressed: () {
             setState(() {
-              TodoService.deleteTodos(selectedTodos);
+              locator<TodoService>().deleteTodos(selectedTodos);
               selectedTodos.clear();
               _selectionMode = false;
             });

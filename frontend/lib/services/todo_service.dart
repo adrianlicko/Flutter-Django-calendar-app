@@ -3,7 +3,7 @@ import 'package:frontend/models/todo_model.dart';
 
 class TodoService {
   // mocked data
-  static final List<TodoModel> _todos = [
+  final List<TodoModel> _todos = [
     TodoModel(id: "123", title: "Neviem"),
     TodoModel(id: "11", title: "Neviem2", description: "Roman"),
     TodoModel(
@@ -91,44 +91,46 @@ class TodoService {
     ),
   ];
 
-  static List<TodoModel> getTodos() {
+  final String baseUrl = 'http://127.0.0.1:8000/api/todos/';
+
+  List<TodoModel> getTodos() {
     return _todos;
   }
 
-  static List<TodoModel> getNotCompletedTodos() {
+  List<TodoModel> getNotCompletedTodos() {
     return getTodos().where((todo) => !todo.isCompleted).toList();
   }
 
-  static List<TodoModel> getTodosForDate(DateTime date) {
+  List<TodoModel> getTodosForDate(DateTime date) {
     return getNotCompletedTodos().where((todo) {
       if (todo.date == null) return false;
       return todo.date!.isAtSameMomentAs(date);
     }).toList();
   }
 
-  static List<TodoModel> getTodosForDateWithTime(DateTime date) {
+  List<TodoModel> getTodosForDateWithTime(DateTime date) {
     return getNotCompletedTodos().where((todo) {
       if (todo.date == null) return false;
       return todo.date!.isAtSameMomentAs(date) && todo.time != null;
     }).toList();
   }
 
-  static List<TodoModel> getTodosForDateWithoutTime(DateTime date) {
+  List<TodoModel> getTodosForDateWithoutTime(DateTime date) {
     return getNotCompletedTodos().where((todo) {
       if (todo.date == null) return false;
       return todo.date!.isAtSameMomentAs(date) && todo.time == null;
     }).toList();
   }
 
-  static void addTodo(TodoModel todo) {
+  void addTodo(TodoModel todo) {
     _todos.add(todo);
   }
 
-  static void deleteTodos(List<TodoModel> todos) {
+  void deleteTodos(List<TodoModel> todos) {
     _todos.removeWhere((todo) => todos.contains(todo));
   }
 
-  static void deleteTodo(TodoModel todo) {
+  void deleteTodo(TodoModel todo) {
     _todos.remove(todo);
   }
 }

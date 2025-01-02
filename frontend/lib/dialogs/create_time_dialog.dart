@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/locator.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/services/calendar_service.dart';
 import 'package:go_router/go_router.dart';
@@ -209,7 +210,7 @@ class _CreateTimeDialogState extends State<CreateTimeDialog> {
                 endTime: _endTime!,
                 color: _selectedColor,
               );
-              CalendarService.addSchedule(newSchedule);
+              locator<CalendarService>().addSchedule(newSchedule);
               context.pop(newSchedule);
             }
           },

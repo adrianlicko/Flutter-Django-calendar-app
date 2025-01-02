@@ -3,6 +3,7 @@ import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_time_dialog.dart';
 import 'package:frontend/dialogs/create_todo_dialog.dart';
+import 'package:frontend/locator.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/providers/theme_provider.dart';
@@ -25,7 +26,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   int currentWeekDay = DateTime.now().weekday;
   int selectedWeekDay = DateTime.now().weekday;
   DateTime selectedDate = DateTime.now();
-  List<ScheduleModel> schedules = CalendarService.getSchedules();
+  List<ScheduleModel> schedules = locator<CalendarService>().getSchedules();
   List<TodoModel> selectedTodos = [];
   bool _selectionMode = false;
 
@@ -48,7 +49,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           icon: const Icon(Icons.delete),
           onPressed: () {
             setState(() {
-              TodoService.deleteTodos(selectedTodos);
+              locator<TodoService>().deleteTodos(selectedTodos);
               selectedTodos.clear();
               _selectionMode = false;
             });
@@ -289,7 +290,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onDismissed: (direction) {
               setState(() {
                 schedules.remove(schedule);
-                CalendarService.deleteSchedule(schedule);
+                locator<CalendarService>().deleteSchedule(schedule);
               });
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -381,8 +382,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildTimeTable() {
-    List<TodoModel> selectedDayTodosWithoutTime = TodoService.getTodosForDateWithoutTime(selectedDate);
-    List<TodoModel> selectedDayTodosWithTime = TodoService.getTodosForDateWithTime(selectedDate);
+    List<TodoModel> selectedDayTodosWithoutTime = locator<TodoService>().getTodosForDateWithoutTime(selectedDate);
+    List<TodoModel> selectedDayTodosWithTime = locator<TodoService>().getTodosForDateWithTime(selectedDate);
     List<TodoModel> todosWithoutScheduleCollision = List.from(selectedDayTodosWithTime);
     List<ScheduleModel> sortedSchedules = schedules.where((schedule) => schedule.weekDay == selectedWeekDay).toList();
     sortedSchedules.sort(

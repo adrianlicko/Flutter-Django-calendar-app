@@ -3,7 +3,7 @@ import 'package:frontend/models/schedule_model.dart';
 
 class CalendarService {
   // mocked data
-  static final List<ScheduleModel> _schedules = [
+  final List<ScheduleModel> _schedules = [
     ScheduleModel(
       id: "1",
       title: "Math",
@@ -70,15 +70,15 @@ class CalendarService {
     ),
   ];
 
-  static List<ScheduleModel> getSchedules() {
+  List<ScheduleModel> getSchedules() {
     return _schedules;
   }
 
-  static void addSchedule(ScheduleModel schedule) {
+  void addSchedule(ScheduleModel schedule) {
     _schedules.add(schedule);
   }
 
-  static void deleteSchedule(ScheduleModel schedule) {
+  void deleteSchedule(ScheduleModel schedule) {
     _schedules.remove(schedule);
   }
 }

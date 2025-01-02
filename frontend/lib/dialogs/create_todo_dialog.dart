@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:go_router/go_router.dart';
@@ -140,7 +141,7 @@ class _CreateTodoDialogState extends State<CreateTodoDialog> {
                 date: _selectedDate,
                 time: _selectedTime,
               );
-              TodoService.addTodo(newTodo);
+              locator<TodoService>().addTodo(newTodo);
               context.pop(newTodo);
             }
           },

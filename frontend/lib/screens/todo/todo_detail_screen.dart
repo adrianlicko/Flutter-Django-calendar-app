@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
+import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +21,7 @@ class TodoDetailScreen extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.delete),
           onPressed: () {
-            TodoService.deleteTodo(todo);
+            locator<TodoService>().deleteTodo(todo);
             context.pop(todo);
           },
         ),
