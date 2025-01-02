@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    authProvider.tryAutoLogin();
 
     return MaterialApp.router(
       locale: localeProvider.locale,

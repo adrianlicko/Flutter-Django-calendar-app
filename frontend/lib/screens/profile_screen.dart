@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/theme/all_themes.dart';
@@ -180,11 +181,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        actions: [
+          IconButton(
+              onPressed: () => Provider.of<AuthProvider>(context, listen: false).logout(),
+              icon: const Icon(Icons.logout)),
+        ],
         body: Column(
-      children: [
-        _buildProfileHeader(),
-        _buildSections(),
-      ],
-    ));
+          children: [
+            _buildProfileHeader(),
+            _buildSections(),
+          ],
+        ));
   }
 }
