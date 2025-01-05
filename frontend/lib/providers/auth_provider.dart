@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
-  final AuthService _authService = AuthService();
-  String? _token;
+  final AuthService _authService = locator<AuthService>();
   bool _isLoading = false;
 
-  bool get isAuthenticated => _token != null;
+  bool get isAuthenticated => _authService.accessToken != null;
   bool get isLoading => _isLoading;
-  String? get token => _token;
+  String? get accessToken => _authService.accessToken;
 
   Future<bool> register({
     required String email,
@@ -43,11 +43,12 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    String? token = await _authService.login(email: email, password: password);
-    if (token != null) {
-      _token = token;
+    final tokens = await _authService.login(email: email, password: password);
+    if (tokens != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('authToken', token);
+      await prefs.setString('accessToken', tokens['access']);
+      await prefs.setString('refreshToken', tokens['refresh']);
+      _authService.setTokens(access: tokens['access'], refresh: tokens['refresh']);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -59,19 +60,38 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _token = null;
+    _authService.logout();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('authToken');
+    await prefs.remove('accessToken');
+    await prefs.remove('refreshToken');
     notifyListeners();
   }
 
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('authToken')) {
-      return false;
+    final access = prefs.getString('accessToken');
+    final refresh = prefs.getString('refreshToken');
+
+    if (access != null && refresh != null) {
+      _authService.setTokens(access: access, refresh: refresh);
+
+      // Optionally verify token validity with a test API call
+      // For simplicity, assume token is valid and proceed
+      notifyListeners();
+      return true;
     }
-    _token = prefs.getString('authToken');
-    notifyListeners();
-    return true;
+    return false;
+  }
+
+  Future<bool> refreshToken() async {
+    final success = await _authService.refreshAccessToken();
+    if (success) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', _authService.accessToken!);
+      notifyListeners();
+      return true;
+    }
+    await logout();
+    return false;
   }
 }
