@@ -21,7 +21,7 @@ class TodoDetailScreen extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.delete),
           onPressed: () {
-            locator<TodoService>().deleteTodo(todo);
+            locator<TodoService>().deleteTodo(todo.id!);
             context.pop(todo);
           },
         ),

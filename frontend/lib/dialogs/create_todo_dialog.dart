@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
-import 'package:frontend/services/todo_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -130,18 +128,16 @@ class _CreateTodoDialogState extends State<CreateTodoDialog> {
         ),
         IconButton(
           icon: const Icon(Icons.check, color: Colors.green, size: 30),
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
               final newTodo = TodoModel(
-                id: UniqueKey().toString(),
                 title: _title,
                 description: _description.isEmpty ? null : _description,
                 isCompleted: false,
                 date: _selectedDate,
                 time: _selectedTime,
               );
-              locator<TodoService>().addTodo(newTodo);
               context.pop(newTodo);
             }
           },

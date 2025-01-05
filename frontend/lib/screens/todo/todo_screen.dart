@@ -21,6 +21,7 @@ class _TodoScreenState extends State<TodoScreen> {
   List<TodoModel> selectedTodos = [];
   bool _selectionMode = false;
   bool _showFloatingActionButton = true;
+  bool _isLoadingData = false;
 
   @override
   void initState() {
@@ -29,8 +30,18 @@ class _TodoScreenState extends State<TodoScreen> {
       todos = widget.todos!;
       _showFloatingActionButton = false;
     } else {
-      todos = locator<TodoService>().getTodos();
+      _fetchData();
     }
+  }
+
+  void _fetchData() async {
+    setState(() {
+      _isLoadingData = true;
+    });
+    todos = await locator<TodoService>().getTodos();
+    setState(() {
+      _isLoadingData = false;
+    });
   }
 
   Widget _buildActionButtons() {
@@ -38,9 +49,10 @@ class _TodoScreenState extends State<TodoScreen> {
       children: [
         IconButton(
           icon: const Icon(Icons.delete),
-          onPressed: () {
+          onPressed: () async {
+            await locator<TodoService>().deleteTodos(selectedTodos.map((todo) => todo.id!).toList());
+            todos.removeWhere((todo) => selectedTodos.contains(todo));
             setState(() {
-              locator<TodoService>().deleteTodos(selectedTodos);
               selectedTodos.clear();
               _selectionMode = false;
             });
@@ -93,10 +105,17 @@ class _TodoScreenState extends State<TodoScreen> {
               }
             }
           },
-          onCompletedChanged: () {
+          onCompletedChanged: () async {
             setState(() {
               todo.isCompleted = !todo.isCompleted;
             });
+            try {
+              await locator<TodoService>().updateTodo(todo);
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to update todo: $e')),
+              );
+            }
           },
         );
       }).toList(),
@@ -112,6 +131,7 @@ class _TodoScreenState extends State<TodoScreen> {
     );
 
     if (newTodo != null) {
+      await locator<TodoService>().addTodo(newTodo);
       setState(() {});
     }
   }
@@ -136,6 +156,13 @@ class _TodoScreenState extends State<TodoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingData) {
+      return const Center(
+        // todo replace with loading screen
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return AppScaffold(
       floatingActionButton: _showFloatingActionButton ? _buildCreateTodoButton() : null,
       actions: [
