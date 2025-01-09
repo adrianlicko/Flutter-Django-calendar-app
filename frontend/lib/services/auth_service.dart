@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:frontend/models/user_data_model.dart';
+import 'package:frontend/models/user_preferences_model.dart';
+import 'package:frontend/theme/all_themes.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
@@ -9,8 +13,31 @@ class AuthService {
   String? get accessToken => _accessToken;
   String? get refreshToken => _refreshToken;
 
+  Future<UserDataModel?> getCurrentUser() async {
+    final response = await http.get(
+      Uri.parse('${_baseUrl}users/me/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return UserDataModel.fromJson(jsonDecode(response.body));
+    } else {
+      return null;
+    }
+  }
+
   Future<bool> register(
       {required String email, required String password, required String firstName, required String lastName}) async {
+    final defaultPreferences = UserPreferencesModel(
+      locale: const Locale('en'),
+      theme: AllAppColors.darkRedColorScheme,
+      showTodosInCalendar: true,
+      removeTodoFromCalendarWhenCompleted: true,
+    );
+
     final response = await http.post(
       Uri.parse('${_baseUrl}users/'),
       headers: {'Content-Type': 'application/json'},
@@ -19,8 +46,10 @@ class AuthService {
         'password': password,
         'first_name': firstName,
         'last_name': lastName,
+        'preferences': defaultPreferences.toJson(),
       }),
     );
+
     return response.statusCode == 201;
   }
 
@@ -43,7 +72,7 @@ class AuthService {
       return null;
     }
   }
-  
+
   Future<bool> refreshAccessToken() async {
     if (_refreshToken == null) return false;
 

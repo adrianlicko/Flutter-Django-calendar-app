@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/locator.dart';
+import 'package:frontend/models/user_preferences_model.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
+import 'package:frontend/providers/theme_provider.dart';
+import 'package:frontend/services/user_preferences_service.dart';
 import 'package:provider/provider.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -15,6 +19,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool _showLoginScreen = true;
+  final UserPreferencesService _userPreferencesService = locator<UserPreferencesService>();
 
   Widget _buildTextFormField(
       {required TextEditingController controller,
@@ -123,16 +128,11 @@ class _AuthScreenState extends State<AuthScreen> {
             label: AppLocalizations.of(context)!.register,
             onPressed: () async {
               if (formKey.currentState!.validate()) {
-                bool success = await Provider.of<AuthProvider>(context, listen: false).register(
+                await Provider.of<AuthProvider>(context, listen: false).register(
                     email: emailController.text,
                     password: passwordController.text,
                     firstName: firstNameController.text,
                     lastName: lastNameController.text);
-                if (success) {
-                  // todo Navigate to home or show success message
-                } else {
-                  // todo Show error message
-                }
               }
             }),
         _buildSwitchAuthButton(
@@ -183,13 +183,8 @@ class _AuthScreenState extends State<AuthScreen> {
             label: AppLocalizations.of(context)!.login,
             onPressed: () async {
               if (formKey.currentState!.validate()) {
-                bool success = await Provider.of<AuthProvider>(context, listen: false)
+                await Provider.of<AuthProvider>(context, listen: false)
                     .login(email: emailController.text, password: passwordController.text);
-                if (success) {
-                  // todo Navigate to home
-                } else {
-                  // todo Show error message
-                }
               }
             }),
         _buildSwitchAuthButton(
@@ -221,6 +216,12 @@ class _AuthScreenState extends State<AuthScreen> {
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
+                  _userPreferencesService.updatePreferences(UserPreferencesModel(
+                    locale: newLocale,
+                    theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
+                    showTodosInCalendar: true,
+                    removeTodoFromCalendarWhenCompleted: true,
+                  ));
                 }
               },
               items: L10n.all.map((Locale locale) {

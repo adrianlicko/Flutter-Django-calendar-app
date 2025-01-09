@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/l10n/l10n.dart';
+import 'package:frontend/locator.dart';
+import 'package:frontend/models/user_data_model.dart';
+import 'package:frontend/models/user_preferences_model.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
+import 'package:frontend/services/user_preferences_service.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -16,6 +20,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final _userPreferencesService = locator<UserPreferencesService>();
+  late UserDataModel _userData;
+
+  @override
+  void initState() {
+    super.initState();
+    _userData = Provider.of<AuthProvider>(context, listen: false).user!;
+  }
+
   Widget _buildOption(
       {required String title, required bool isEnabled, required void Function() onTap, bool isNested = false}) {
     return Row(
@@ -117,6 +130,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
+                  _userPreferencesService.updatePreferences(UserPreferencesModel(
+                    locale: newLocale,
+                    theme: themeProvider.currentTheme,
+                    showTodosInCalendar: true,
+                    removeTodoFromCalendarWhenCompleted: true,
+                  ));
                 }
               },
               items: L10n.all.map((Locale locale) {
@@ -140,6 +159,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChanged: (AllAppColors? newTheme) {
                 if (newTheme != null) {
                   themeProvider.setTheme(newTheme);
+                  
+                  _userPreferencesService.updatePreferences(UserPreferencesModel(
+                    locale: localeProvider.locale,
+                    theme: newTheme,
+                    showTodosInCalendar: true,
+                    removeTodoFromCalendarWhenCompleted: true,
+                  ));
                 }
               },
               items: AllAppColors.values.map((AllAppColors theme) {
@@ -168,11 +194,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Icon(Icons.person, size: 50.0),
         ),
         const SizedBox(height: 16.0),
-        Text("Name Surname",
+        Text("${_userData.firstName} ${_userData.lastName}",
             style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Theme.of(context).primaryColor)),
         Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Text("nejaky email", style: Theme.of(context).textTheme.bodyMedium)]),
+            children: [Text(_userData.email, style: Theme.of(context).textTheme.bodyMedium)]),
         const SizedBox(height: 16.0),
       ],
     );

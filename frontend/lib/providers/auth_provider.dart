@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/locator.dart';
+import 'package:frontend/models/user_data_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/services/auth_service.dart';
 
@@ -10,6 +11,8 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _authService.accessToken != null;
   bool get isLoading => _isLoading;
   String? get accessToken => _authService.accessToken;
+  UserDataModel? _user;
+  UserDataModel? get user => _user;
 
   Future<bool> register({
     required String email,
@@ -29,6 +32,7 @@ class AuthProvider with ChangeNotifier {
 
     if (success) {
       success = await login(email: email, password: password);
+      _user = await _authService.getCurrentUser();
     }
 
     _isLoading = false;
@@ -64,6 +68,7 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('accessToken');
     await prefs.remove('refreshToken');
+    _user = null;
     notifyListeners();
   }
 
@@ -74,9 +79,8 @@ class AuthProvider with ChangeNotifier {
 
     if (access != null && refresh != null) {
       _authService.setTokens(access: access, refresh: refresh);
+      _user = await _authService.getCurrentUser();
 
-      // Optionally verify token validity with a test API call
-      // For simplicity, assume token is valid and proceed
       notifyListeners();
       return true;
     }

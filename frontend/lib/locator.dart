@@ -1,12 +1,14 @@
 import 'package:frontend/services/auth_service.dart';
 import 'package:frontend/services/schedule_service.dart';
 import 'package:frontend/services/todo_service.dart';
+import 'package:frontend/services/user_preferences_service.dart';
 import 'package:get_it/get_it.dart';
 
 final GetIt locator = GetIt.instance;
 
 void setupLocator() {
   locator.registerLazySingleton<AuthService>(() => AuthService());
+  locator.registerLazySingleton<UserPreferencesService>(() => UserPreferencesService());
   locator.registerLazySingleton<TodoService>(() => TodoService());
   locator.registerLazySingleton<ScheduleService>(() => ScheduleService());
 }
