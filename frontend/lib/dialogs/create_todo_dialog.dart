@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class CreateTodoDialog extends StatefulWidget {
-  const CreateTodoDialog({super.key});
+  final DateTime? date;
+  const CreateTodoDialog({super.key, this.date});
 
   @override
   State<CreateTodoDialog> createState() => _CreateTodoDialogState();
@@ -16,6 +17,12 @@ class _CreateTodoDialogState extends State<CreateTodoDialog> {
   String _description = '';
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+
+  @override
+  void initState() {
+    _selectedDate = widget.date;
+    super.initState();
+  }
 
   Widget _buildTitleField() {
     return TextFormField(

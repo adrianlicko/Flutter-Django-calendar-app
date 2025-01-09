@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TodoModel {
   final DateTime? createdAt;
@@ -30,22 +31,24 @@ class TodoModel {
     );
   }
 
+  // date format: YYYY-MM-DD
+
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'description': description,
-      'date': date?.toIso8601String(),
+      'date': date != null ? DateFormat('yyyy-MM-dd').format(date!) : null,
       'time': time != null ? _formatTimeOfDay(time!) : null,
       'is_completed': isCompleted,
     };
   }
 
-  static TimeOfDay _parseTimeOfDay(String timeString) {
-    final parts = timeString.split(':');
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-  }
+static TimeOfDay _parseTimeOfDay(String timeString) {
+  final parts = timeString.split(':');
+  return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+}
 
-  static String _formatTimeOfDay(TimeOfDay time) {
-    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-  }
+static String _formatTimeOfDay(TimeOfDay time) {
+  return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:00';
+}
 }

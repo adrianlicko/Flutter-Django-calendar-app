@@ -5,95 +5,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TodoService {
-  // mocked data
-  // final List<TodoModel> _todos = [
-  //   TodoModel(id: "123", title: "Neviem"),
-  //   TodoModel(id: "11", title: "Neviem2", description: "Roman"),
-  //   TodoModel(
-  //       id: "122",
-  //       title: "So vsetkym",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024),
-  //       time: const TimeOfDay(hour: 4, minute: 13)),
-  //   TodoModel(id: "132", title: "S datumom", description: "Nejaky popis", date: DateTime(2024)),
-  //   TodoModel(
-  //       id: "132333", title: "S casom", description: "Nejaky popis", time: TimeOfDay.fromDateTime(DateTime.now())),
-  //   TodoModel(
-  //       id: "132343",
-  //       title: "S casom",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 8, 30))),
-  //   TodoModel(
-  //       id: "132343",
-  //       title: "S cas",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 8, 32))),
-  //   TodoModel(
-  //       id: "13233432432",
-  //       title: "S caskkds",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 10, 32))),
-  //   TodoModel(
-  //       id: "13233423232432",
-  //       title: "S asdasasd",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 10, 33))),
-  //   TodoModel(
-  //       id: "132343",
-  //       title: "S casomsdsdsd",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 11, 23))),
-  //   TodoModel(
-  //       id: "132343",
-  //       title: "S casomsdasdasdsadasdasdasd",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 11, 50))),
-  //   TodoModel(
-  //       id: "13234323",
-  //       title: "S adsad",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 11, 52))),
-  //   TodoModel(
-  //       id: "13234323",
-  //       title: "S adsad",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 7, 52))),
-  //   TodoModel(
-  //       id: "13234323",
-  //       title: "S adsad",
-  //       description: "Nejaky popis",
-  //       date: DateTime(2024, 12, 23),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 30))),
-  //   TodoModel(
-  //     id: "13234323",
-  //     title: "Romannn",
-  //     description: "Nejaky popis",
-  //     date: DateTime(2024, 12, 23),
-  //     // time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 30))
-  //   ),
-  //   TodoModel(
-  //       id: "13234323",
-  //       title: "S adsad",
-  //       description: "Nejaky popis",
-  //       // date: DateTime(2024, 12, 9),
-  //       time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 32))),
-  //   TodoModel(
-  //     id: "13234323",
-  //     title: "S adsad",
-  //     description: "Nejaky popis",
-  //     // date: DateTime(2024, 12, 9),
-  //     // time: TimeOfDay.fromDateTime(DateTime(2024, 1, 1, 12, 30))
-  //   ),
-  // ];
-
   final AuthService _authService = locator<AuthService>();
   List<TodoModel> _todos = [];
 
@@ -128,25 +39,28 @@ class TodoService {
 
   Future<List<TodoModel>> getTodosForDate(DateTime date) async {
     final todos = await getNotCompletedTodos();
+    final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
       if (todo.date == null) return false;
-      return todo.date!.isAtSameMomentAs(date);
+      return todo.date!.isAtSameMomentAs(givenDate);
     }).toList();
   }
 
   Future<List<TodoModel>> getTodosForDateWithTime(DateTime date) async {
     final todos = await getNotCompletedTodos();
+    final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
       if (todo.date == null) return false;
-      return todo.date!.isAtSameMomentAs(date) && todo.time != null;
+      return todo.date!.isAtSameMomentAs(givenDate) && todo.time != null;
     }).toList();
   }
 
   Future<List<TodoModel>> getTodosForDateWithoutTime(DateTime date) async {
     final todos = await getNotCompletedTodos();
+    final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
       if (todo.date == null) return false;
-      return todo.date!.isAtSameMomentAs(date) && todo.time == null;
+      return todo.date!.isAtSameMomentAs(givenDate) && todo.time == null;
     }).toList();
   }
 
@@ -182,6 +96,7 @@ class TodoService {
       _todos.add(newTodo);
       return newTodo;
     } else {
+      print('Failed to add todo: ${response.statusCode} ${response.body}');
       throw Exception('Failed add todo');
     }
   }
@@ -192,7 +107,7 @@ class TodoService {
     }
   }
 
-  Future<void> deleteTodo(int todoId) async {
+  Future<bool> deleteTodo(int todoId) async {
     final String token = _authService.accessToken!;
     final response = await http.delete(Uri.parse('$_baseUrl$todoId/'), headers: {
       'Content-Type': 'application/json',
@@ -200,6 +115,7 @@ class TodoService {
     });
     if (response.statusCode == 204) {
       _todos.removeWhere((todo) => todo.id == todoId);
+      return true;
     } else {
       throw Exception('Failed to delete todo');
     }
