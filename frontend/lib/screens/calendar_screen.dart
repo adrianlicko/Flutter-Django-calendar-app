@@ -7,7 +7,7 @@ import 'package:frontend/locator.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/providers/theme_provider.dart';
-import 'package:frontend/services/calendar_service.dart';
+import 'package:frontend/services/schedule_service.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -26,9 +26,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
   int currentWeekDay = DateTime.now().weekday;
   int selectedWeekDay = DateTime.now().weekday;
   DateTime selectedDate = DateTime.now();
-  List<ScheduleModel> schedules = locator<CalendarService>().getSchedules();
+  List<ScheduleModel> schedules = [];
   List<TodoModel> selectedTodos = [];
   bool _selectionMode = false;
+  bool _isLoadingData = false;
+  List<TodoModel>? selectedDayTodosWithoutTime;
+  List<TodoModel>? selectedDayTodosWithTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSchedules();
+    _fetchTodos(selectedDate);
+  }
 
   @override
   void didChangeDependencies() {
@@ -42,6 +52,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
     };
   }
 
+  Future<void> _fetchSchedules() async {
+    setState(() {
+      _isLoadingData = true;
+    });
+    schedules = await locator<ScheduleService>().getSchedules();
+    setState(() {
+      _isLoadingData = false;
+    });
+  }
+
   Widget _buildActionButtons() {
     return Row(
       children: [
@@ -49,7 +69,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           icon: const Icon(Icons.delete),
           onPressed: () {
             setState(() {
-              locator<TodoService>().deleteTodos(selectedTodos);
+              locator<TodoService>().deleteTodos(selectedTodos.map((todo) => todo.id!).toList());
+              selectedDayTodosWithTime!.removeWhere((todo) => selectedTodos.contains(todo));
               selectedTodos.clear();
               _selectionMode = false;
             });
@@ -68,16 +89,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  Future<void> _showCreateScheduleDialog() async {
+    final newSchedule = await showDialog<ScheduleModel>(
+      context: context,
+      builder: (context) => CreateTimeDialog(selectedWeekDay: selectedWeekDay),
+    );
+
+    if (newSchedule != null) {
+      await locator<ScheduleService>().addSchedule(newSchedule);
+      await _fetchSchedules();
+      setState(() {});
+    }
+  }
+
   Widget _buildAddScheduleButton() {
     return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => CreateTimeDialog(selectedWeekDay: selectedWeekDay),
-        ).then((_) {
-          setState(() {});
-        });
-      },
+      onTap: _showCreateScheduleDialog,
       child: Container(
         width: 60,
         height: 60,
@@ -97,11 +124,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final newTodo = await showDialog<TodoModel>(
       context: context,
       builder: (BuildContext context) {
-        return const CreateTodoDialog();
+        return CreateTodoDialog(date: selectedDate);
       },
     );
 
     if (newTodo != null) {
+      await locator<TodoService>().addTodo(newTodo);
+      _fetchTodos(selectedDate);
       setState(() {});
     }
   }
@@ -177,6 +206,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               selectedWeekDay = date.weekday;
               selectedDate = DateTime(date.year, date.month, date.day);
             });
+            _fetchTodos(selectedDate);
           },
           child: selectedWeekDay == date.weekday
               ? _buildCurrentDayButton(dayLabel, dateLabel)
@@ -214,10 +244,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             final potentiallyDeletedTodo = await context.push('/todo_detail', extra: todo);
                             if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
                               setState(() {
-                                todos.remove(potentiallyDeletedTodo);
+                                selectedDayTodosWithTime!.remove(potentiallyDeletedTodo);
                               });
                             }
-                            // todo doesnt update when is selected to or un completed in the calendar_screen
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -279,7 +308,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12.0),
           child: Dismissible(
-            key: Key(schedule.id),
+            key: Key(schedule.id.toString()),
             direction: DismissDirection.startToEnd,
             background: Container(
               color: Colors.red,
@@ -290,7 +319,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onDismissed: (direction) {
               setState(() {
                 schedules.remove(schedule);
-                locator<CalendarService>().deleteSchedule(schedule);
+                locator<ScheduleService>().deleteSchedule(schedule.id!);
               });
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -369,22 +398,43 @@ class _CalendarScreenState extends State<CalendarScreen> {
           if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
             setState(() {
               todosWithoutScheduleCollision.remove(potentiallyDeletedTodo);
+              selectedDayTodosWithTime!.remove(potentiallyDeletedTodo);
             });
           }
         }
       },
-      onCompletedChanged: () {
+      onCompletedChanged: () async {
         setState(() {
           todo.isCompleted = !todo.isCompleted;
         });
+        try {
+          await locator<TodoService>().updateTodo(todo);
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update todo: $e')),
+          );
+        }
       },
     );
   }
 
+  Future<void> _fetchTodos(DateTime date) async {
+    setState(() {
+      _isLoadingData = true;
+    });
+    selectedDayTodosWithoutTime = await locator<TodoService>().getTodosForDateWithoutTime(date);
+    selectedDayTodosWithTime = await locator<TodoService>().getTodosForDateWithTime(date);
+    setState(() {
+      _isLoadingData = false;
+    });
+  }
+
   Widget _buildTimeTable() {
-    List<TodoModel> selectedDayTodosWithoutTime = locator<TodoService>().getTodosForDateWithoutTime(selectedDate);
-    List<TodoModel> selectedDayTodosWithTime = locator<TodoService>().getTodosForDateWithTime(selectedDate);
-    List<TodoModel> todosWithoutScheduleCollision = List.from(selectedDayTodosWithTime);
+    if (_isLoadingData) {
+      // will show loading screen instead
+      return Container();
+    }
+    List<TodoModel> todosWithoutScheduleCollision = List.from(selectedDayTodosWithTime!);
     List<ScheduleModel> sortedSchedules = schedules.where((schedule) => schedule.weekDay == selectedWeekDay).toList();
     sortedSchedules.sort(
       (a, b) => (a.startTime.hour * 60 + a.startTime.minute).compareTo(b.startTime.hour * 60 + b.startTime.minute),
@@ -432,7 +482,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
 
         if (scheduleStart.isBefore(todoTime)) {
-          List<TodoModel> todosForSchedule = selectedDayTodosWithTime.where((todo) {
+          List<TodoModel> todosForSchedule = selectedDayTodosWithTime!.where((todo) {
             int scheduleStartMinutes = currentSchedule.startTime.hour * 60 + currentSchedule.startTime.minute;
             int scheduleEndMinutes = currentSchedule.endTime.hour * 60 + currentSchedule.endTime.minute;
             int todoMinutes = todo.time!.hour * 60 + todo.time!.minute;
@@ -472,7 +522,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           todoIndex++;
         }
       } else if (currentSchedule != null) {
-        List<TodoModel> todosForSchedule = selectedDayTodosWithTime.where((todo) {
+        List<TodoModel> todosForSchedule = selectedDayTodosWithTime!.where((todo) {
           int scheduleStartMinutes = currentSchedule.startTime.hour * 60 + currentSchedule.startTime.minute;
           int scheduleEndMinutes = currentSchedule.endTime.hour * 60 + currentSchedule.endTime.minute;
           int todoMinutes = todo.time!.hour * 60 + todo.time!.minute;
@@ -514,12 +564,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     // TODO doesnt work
-    selectedDayTodosWithoutTime.map((todo) {
+    selectedDayTodosWithoutTime!.map((todo) {
       timetableWidgets.add(
         Column(
           children: [
             _buildTodo(todosWithoutScheduleCollision, todo),
-            (selectedDayTodosWithoutTime.indexOf(todo) == (selectedDayTodosWithoutTime.length - 1))
+            (selectedDayTodosWithoutTime!.indexOf(todo) == (selectedDayTodosWithoutTime!.length - 1))
                 ? _buildDivider(true)
                 : _buildDivider(false),
           ],
@@ -535,6 +585,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingData) {
+      return const Center(
+        // todo show loading screen
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return AppScaffold(
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/locator.dart';
 import 'package:frontend/models/schedule_model.dart';
-import 'package:frontend/services/calendar_service.dart';
 import 'package:go_router/go_router.dart';
 
 class CreateTimeDialog extends StatefulWidget {
@@ -201,7 +199,6 @@ class _CreateTimeDialogState extends State<CreateTimeDialog> {
             if (_formKey.currentState!.validate()) {
               _formKey.currentState!.save();
               final newSchedule = ScheduleModel(
-                id: UniqueKey().toString(),
                 title: _title,
                 description: _description,
                 room: _room,
@@ -210,7 +207,6 @@ class _CreateTimeDialogState extends State<CreateTimeDialog> {
                 endTime: _endTime!,
                 color: _selectedColor,
               );
-              locator<CalendarService>().addSchedule(newSchedule);
               context.pop(newSchedule);
             }
           },
