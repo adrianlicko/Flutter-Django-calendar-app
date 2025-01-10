@@ -4,6 +4,7 @@ import 'package:frontend/components/todo_card.dart';
 import 'package:frontend/dialogs/create_todo_dialog.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
+import 'package:frontend/screens/loading_screen.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:go_router/go_router.dart';
 
@@ -157,10 +158,7 @@ class _TodoScreenState extends State<TodoScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoadingData) {
-      return const Center(
-        // todo replace with loading screen
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingScreen();
     }
 
     return AppScaffold(

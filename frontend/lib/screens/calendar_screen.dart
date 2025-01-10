@@ -9,6 +9,7 @@ import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/models/user_data_model.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
+import 'package:frontend/screens/loading_screen.dart';
 import 'package:frontend/services/schedule_service.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -594,10 +595,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoadingData) {
-      return const Center(
-        // todo show loading screen
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingScreen();
     }
 
     return AppScaffold(
