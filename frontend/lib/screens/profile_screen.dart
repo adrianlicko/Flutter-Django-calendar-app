@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
+import 'package:frontend/components/custom_text_field.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_data_model.dart';
@@ -7,7 +8,7 @@ import 'package:frontend/models/user_preferences_model.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
-import 'package:frontend/services/user_preferences_service.dart';
+import 'package:frontend/services/user_data_service.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -19,9 +20,20 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final _userPreferencesService = locator<UserPreferencesService>();
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+  final _userDataService = locator<UserDataService>();
   late UserDataModel _userData;
+  bool _isNameTextFieldEnabled = false;
+  bool _isEmailTextFieldEnabled = false;
+  bool _isPasswordTextFieldEnabled = false;
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _nameKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _passwordKey = GlobalKey<FormState>();
+  bool isButtonLoading = false;
 
   @override
   void initState() {
@@ -30,7 +42,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildOption(
-      {required String title, required bool isEnabled, required void Function() onTap, bool isNested = false}) {
+      {required String title,
+      required bool isEnabled,
+      required void Function(bool? value) onTap,
+      bool isNested = false,
+      Color? optionColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -39,9 +55,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Transform.scale(
           scale: 1.3,
           child: Checkbox(
+            fillColor: WidgetStateProperty.all(optionColor),
             value: isEnabled,
             onChanged: (bool? value) {
-              onTap();
+              onTap(value);
               setState(() {});
             },
           ),
@@ -99,25 +116,140 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildProfileSection() {
+    return Column(
+      children: [
+        _buildSection(title: AppLocalizations.of(context)!.profile, options: [
+          _buildEditOption(
+              title: AppLocalizations.of(context)!.changeName,
+              onTap: () {
+                setState(() {
+                  _isNameTextFieldEnabled = !_isNameTextFieldEnabled;
+                });
+              }),
+          if (_isNameTextFieldEnabled)
+            Form(
+              key: _isNameTextFieldEnabled ? _nameKey : null,
+              child: Column(children: [
+                CustomTextField(controller: _firstNameController, labelText: AppLocalizations.of(context)!.firstName),
+                CustomTextField(controller: _lastNameController, labelText: AppLocalizations.of(context)!.lastName),
+              ]),
+            ),
+          _buildEditOption(
+              title: AppLocalizations.of(context)!.changeEmail,
+              onTap: () {
+                setState(() {
+                  _isEmailTextFieldEnabled = !_isEmailTextFieldEnabled;
+                });
+              }),
+          if (_isEmailTextFieldEnabled)
+            Form(
+              key: _isEmailTextFieldEnabled ? _emailKey : null,
+              child: CustomTextField(controller: _emailController, labelText: AppLocalizations.of(context)!.email),
+            ),
+          _buildEditOption(
+              title: AppLocalizations.of(context)!.changePassword,
+              onTap: () {
+                setState(() {
+                  _isPasswordTextFieldEnabled = !_isPasswordTextFieldEnabled;
+                });
+              }),
+          if (_isPasswordTextFieldEnabled)
+            Form(
+              key: _isPasswordTextFieldEnabled ? _passwordKey : null,
+              child:
+                  CustomTextField(controller: _passwordController, labelText: AppLocalizations.of(context)!.password),
+            ),
+          if (_isNameTextFieldEnabled || _isEmailTextFieldEnabled || _isPasswordTextFieldEnabled)
+            Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                height: 35.0,
+                width: 110.0,
+                child: ElevatedButton(
+                    onPressed: isButtonLoading
+                        ? () {}
+                        : () async {
+                            if (_isNameTextFieldEnabled && _nameKey.currentState!.validate() ||
+                                _isEmailTextFieldEnabled && _emailKey.currentState!.validate() ||
+                                _isPasswordTextFieldEnabled && _passwordKey.currentState!.validate()) {
+                              setState(() {
+                                isButtonLoading = true;
+                              });
+                              final response = await _userDataService.updateUserData(UserDataModel(
+                                  id: _userData.id,
+                                  email: _isEmailTextFieldEnabled ? _emailController.text : _userData.email,
+                                  firstName: _isNameTextFieldEnabled ? _firstNameController.text : _userData.firstName,
+                                  lastName: _isNameTextFieldEnabled ? _lastNameController.text : _userData.lastName,
+                                  password: _isPasswordTextFieldEnabled ? _passwordController.text : _userData.password,
+                                  preferences: _userData.preferences));
+                              _userData = response!;
+                              setState(() {
+                                isButtonLoading = false;
+                                _firstNameController.text = '';
+                                _emailController.text = '';
+                                _isNameTextFieldEnabled = false;
+                                _emailController.text = '';
+                                _isEmailTextFieldEnabled = false;
+                                _passwordController.text = '';
+                                _isPasswordTextFieldEnabled = false;
+                              });
+                            }
+                          },
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor),
+                        foregroundColor: WidgetStateProperty.all<Color>(Colors.white)),
+                    child: isButtonLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(AppLocalizations.of(context)!.save,
+                            style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.white))),
+              ),
+            )
+        ]),
+      ],
+    );
+  }
+
   Widget _buildSections() {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Column(
       children: [
-        _buildSection(title: AppLocalizations.of(context)!.profile, options: [
-          _buildEditOption(title: AppLocalizations.of(context)!.changeEmail, onTap: () {}),
-          _buildEditOption(title: AppLocalizations.of(context)!.changePassword, onTap: () {})
-        ]),
+        _buildProfileSection(),
         const SizedBox(height: 16.0),
         _buildSection(
             title: "${AppLocalizations.of(context)!.calendar}/${AppLocalizations.of(context)!.todoTasks}",
             options: [
-              _buildOption(title: AppLocalizations.of(context)!.showTodoTasksInCalendar, isEnabled: true, onTap: () {}),
+              _buildOption(
+                  title: AppLocalizations.of(context)!.showTodoTasksInCalendar,
+                  isEnabled: _userData.preferences.showTodosInCalendar,
+                  onTap: (value) async {
+                    final response = await _userDataService.updatePreferences(UserPreferencesModel(
+                      locale: _userData.preferences.locale,
+                      theme: _userData.preferences.theme,
+                      showTodosInCalendar: value!,
+                      removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
+                    ));
+                    _userData.preferences.setShowTodosInCalendar(response!.showTodosInCalendar);
+                    setState(() {});
+                  }),
               _buildOption(
                   title: AppLocalizations.of(context)!.removeTodoFromCalendarWhenCompleted,
-                  isEnabled: true,
-                  onTap: () {},
+                  isEnabled: _userData.preferences.removeTodoFromCalendarWhenCompleted,
+                  optionColor: _userData.preferences.showTodosInCalendar ? null : Colors.grey[700],
+                  onTap: (value) async {
+                    if (!_userData.preferences.showTodosInCalendar) return;
+                    final response = await _userDataService.updatePreferences(UserPreferencesModel(
+                      locale: _userData.preferences.locale,
+                      theme: _userData.preferences.theme,
+                      showTodosInCalendar: _userData.preferences.showTodosInCalendar,
+                      removeTodoFromCalendarWhenCompleted: value!,
+                    ));
+                    _userData.preferences
+                        .setRemoveTodoFromCalendarWhenCompleted(response!.removeTodoFromCalendarWhenCompleted);
+                    setState(() {});
+                  },
                   isNested: true)
             ]),
         const SizedBox(height: 16.0),
@@ -130,11 +262,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
-                  _userPreferencesService.updatePreferences(UserPreferencesModel(
+                  _userData.preferences.setLocale(newLocale);
+                  _userDataService.updatePreferences(UserPreferencesModel(
                     locale: newLocale,
-                    theme: themeProvider.currentTheme,
-                    showTodosInCalendar: true,
-                    removeTodoFromCalendarWhenCompleted: true,
+                    theme: _userData.preferences.theme,
+                    showTodosInCalendar: _userData.preferences.showTodosInCalendar,
+                    removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
                   ));
                 }
               },
@@ -159,12 +292,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onChanged: (AllAppColors? newTheme) {
                 if (newTheme != null) {
                   themeProvider.setTheme(newTheme);
-                  
-                  _userPreferencesService.updatePreferences(UserPreferencesModel(
-                    locale: localeProvider.locale,
+                  _userData.preferences.setTheme(newTheme);
+                  _userDataService.updatePreferences(UserPreferencesModel(
+                    locale: _userData.preferences.locale,
                     theme: newTheme,
-                    showTodosInCalendar: true,
-                    removeTodoFromCalendarWhenCompleted: true,
+                    showTodosInCalendar: _userData.preferences.showTodosInCalendar,
+                    removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
                   ));
                 }
               },
@@ -212,11 +345,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () => Provider.of<AuthProvider>(context, listen: false).logout(),
               icon: const Icon(Icons.logout)),
         ],
-        body: Column(
-          children: [
-            _buildProfileHeader(),
-            _buildSections(),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildProfileHeader(),
+              _buildSections(),
+              const SizedBox(height: 24.0),
+            ],
+          ),
         ));
   }
 }

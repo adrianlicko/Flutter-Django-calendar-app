@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend/theme/all_themes.dart';
 
 class UserPreferencesModel {
-  final Locale locale;
-  final AllAppColors theme;
-  final bool showTodosInCalendar;
-  final bool removeTodoFromCalendarWhenCompleted;
+  Locale locale;
+  AllAppColors theme;
+  bool showTodosInCalendar;
+  bool removeTodoFromCalendarWhenCompleted;
 
   UserPreferencesModel({
     required this.locale,
@@ -13,6 +13,22 @@ class UserPreferencesModel {
     required this.showTodosInCalendar,
     required this.removeTodoFromCalendarWhenCompleted,
   });
+
+  void setLocale(Locale locale) {
+    this.locale = locale;
+  }
+
+  void setTheme(AllAppColors theme) {
+    this.theme = theme;
+  }
+
+  void setShowTodosInCalendar(bool showTodosInCalendar) {
+    this.showTodosInCalendar = showTodosInCalendar;
+  }
+
+  void setRemoveTodoFromCalendarWhenCompleted(bool removeTodoFromCalendarWhenCompleted) {
+    this.removeTodoFromCalendarWhenCompleted = removeTodoFromCalendarWhenCompleted;
+  }
 
   factory UserPreferencesModel.fromJson(Map<String, dynamic> json) {
   return UserPreferencesModel(

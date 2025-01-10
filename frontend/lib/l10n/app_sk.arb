@@ -25,5 +25,7 @@
   "register": "Registrovať",
   "login": "Prihlásiť",
   "alreadyHaveAccount": "Už máte účet?",
-  "dontHaveAccountYet": "Ešte nemáte účet?"
+  "dontHaveAccountYet": "Ešte nemáte účet?",
+  "changeName": "Zmeniť meno",
+  "save": "Uložiť"
 }

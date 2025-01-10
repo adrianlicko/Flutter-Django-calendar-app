@@ -7,6 +7,7 @@ import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/app_router.dart';
+import 'package:frontend/services/user_data_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -47,21 +48,18 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _tryAutoLogin() async {
-    await authProvider.tryAutoLogin();
+    final success = await authProvider.tryAutoLogin();
+    if (!success) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
     user = authProvider.user!;
-    _trySetPreferredPreferences();
+    locator<UserDataService>().trySetPreferredPreferences(context, userData: user!);
     setState(() {
       isLoading = false;
     });
-  }
-
-  void _trySetPreferredPreferences() {
-    final userPreferences = user!.preferences;
-    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-
-    localeProvider.setLocale(userPreferences.locale);
-    themeProvider.setTheme(userPreferences.theme);
   }
 
   @override

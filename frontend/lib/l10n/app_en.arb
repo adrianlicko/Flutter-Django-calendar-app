@@ -25,5 +25,7 @@
   "register": "Register",
   "login": "Login",
   "alreadyHaveAccount": "Already have account?",
-  "dontHaveAccountYet": "Don`t have account yet?"
+  "dontHaveAccountYet": "Don`t have account yet?",
+  "changeName": "Change name",
+  "save": "Save"
 }

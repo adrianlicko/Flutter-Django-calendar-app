@@ -6,6 +6,8 @@ import 'package:frontend/dialogs/create_todo_dialog.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/models/todo_model.dart';
+import 'package:frontend/models/user_data_model.dart';
+import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/services/schedule_service.dart';
 import 'package:frontend/services/todo_service.dart';
@@ -30,12 +32,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<TodoModel> selectedTodos = [];
   bool _selectionMode = false;
   bool _isLoadingData = false;
-  List<TodoModel>? selectedDayTodosWithoutTime;
-  List<TodoModel>? selectedDayTodosWithTime;
+  List<TodoModel> selectedDayTodosWithoutTime = [];
+  List<TodoModel> selectedDayTodosWithTime = [];
+  late final UserDataModel _userData;
 
   @override
   void initState() {
     super.initState();
+    _userData = Provider.of<AuthProvider>(context, listen: false).user!;
     _fetchSchedules();
     _fetchTodos(selectedDate);
   }
@@ -70,7 +74,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           onPressed: () {
             setState(() {
               locator<TodoService>().deleteTodos(selectedTodos.map((todo) => todo.id!).toList());
-              selectedDayTodosWithTime!.removeWhere((todo) => selectedTodos.contains(todo));
+              selectedDayTodosWithTime.removeWhere((todo) => selectedTodos.contains(todo));
               selectedTodos.clear();
               _selectionMode = false;
             });
@@ -244,7 +248,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             final potentiallyDeletedTodo = await context.push('/todo_detail', extra: todo);
                             if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
                               setState(() {
-                                selectedDayTodosWithTime!.remove(potentiallyDeletedTodo);
+                                selectedDayTodosWithTime.remove(potentiallyDeletedTodo);
                               });
                             }
                           },
@@ -398,7 +402,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           if (potentiallyDeletedTodo != null && potentiallyDeletedTodo is TodoModel) {
             setState(() {
               todosWithoutScheduleCollision.remove(potentiallyDeletedTodo);
-              selectedDayTodosWithTime!.remove(potentiallyDeletedTodo);
+              selectedDayTodosWithTime.remove(potentiallyDeletedTodo);
             });
           }
         }
@@ -422,8 +426,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     setState(() {
       _isLoadingData = true;
     });
-    selectedDayTodosWithoutTime = await locator<TodoService>().getTodosForDateWithoutTime(date);
-    selectedDayTodosWithTime = await locator<TodoService>().getTodosForDateWithTime(date);
+    if (_userData.preferences.showTodosInCalendar) {
+      selectedDayTodosWithTime = await locator<TodoService>()
+          .getTodosForDateWithTime(date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
+    }
+    selectedDayTodosWithoutTime = await locator<TodoService>()
+        .getTodosForDateWithoutTime(date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
     setState(() {
       _isLoadingData = false;
     });
@@ -434,7 +442,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       // will show loading screen instead
       return Container();
     }
-    List<TodoModel> todosWithoutScheduleCollision = List.from(selectedDayTodosWithTime!);
+    List<TodoModel> todosWithoutScheduleCollision = List.from(selectedDayTodosWithTime);
     List<ScheduleModel> sortedSchedules = schedules.where((schedule) => schedule.weekDay == selectedWeekDay).toList();
     sortedSchedules.sort(
       (a, b) => (a.startTime.hour * 60 + a.startTime.minute).compareTo(b.startTime.hour * 60 + b.startTime.minute),
@@ -482,7 +490,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         );
 
         if (scheduleStart.isBefore(todoTime)) {
-          List<TodoModel> todosForSchedule = selectedDayTodosWithTime!.where((todo) {
+          List<TodoModel> todosForSchedule = selectedDayTodosWithTime.where((todo) {
             int scheduleStartMinutes = currentSchedule.startTime.hour * 60 + currentSchedule.startTime.minute;
             int scheduleEndMinutes = currentSchedule.endTime.hour * 60 + currentSchedule.endTime.minute;
             int todoMinutes = todo.time!.hour * 60 + todo.time!.minute;
@@ -522,7 +530,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           todoIndex++;
         }
       } else if (currentSchedule != null) {
-        List<TodoModel> todosForSchedule = selectedDayTodosWithTime!.where((todo) {
+        List<TodoModel> todosForSchedule = selectedDayTodosWithTime.where((todo) {
           int scheduleStartMinutes = currentSchedule.startTime.hour * 60 + currentSchedule.startTime.minute;
           int scheduleEndMinutes = currentSchedule.endTime.hour * 60 + currentSchedule.endTime.minute;
           int todoMinutes = todo.time!.hour * 60 + todo.time!.minute;
@@ -564,12 +572,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     // TODO doesnt work
-    selectedDayTodosWithoutTime!.map((todo) {
+    selectedDayTodosWithoutTime.map((todo) {
       timetableWidgets.add(
         Column(
           children: [
             _buildTodo(todosWithoutScheduleCollision, todo),
-            (selectedDayTodosWithoutTime!.indexOf(todo) == (selectedDayTodosWithoutTime!.length - 1))
+            (selectedDayTodosWithoutTime.indexOf(todo) == (selectedDayTodosWithoutTime.length - 1))
                 ? _buildDivider(true)
                 : _buildDivider(false),
           ],

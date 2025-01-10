@@ -1,32 +1,65 @@
 from rest_framework import serializers
-from .models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class PreferencesSerializer(serializers.Serializer):
+    locale = serializers.CharField(max_length=10, required=True)
+    theme = serializers.CharField(max_length=50, required=True)
+    showTodosInCalendar = serializers.BooleanField(required=True)
+    removeTodoFromCalendarWhenCompleted = serializers.BooleanField(required=True)
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    preferences = PreferencesSerializer()
 
     class Meta:
         model = User
         fields = ['id', 'email', 'password', 'first_name', 'last_name', 'preferences']
         extra_kwargs = {
-            'preferences': {'required': True},
+            'email': {'required': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
         }
 
     def create(self, validated_data):
-        email = validated_data.pop('email')
-        password = validated_data.pop('password')
-        username_base = email.split('@')[0]
-        username = username_base
-        counter = 1
-        while User.objects.filter(username=username).exists():
-            username = f"{username_base}{counter}"
-            counter += 1
-        user = User.objects.create(username=username, email=email, **validated_data)
-        user.set_password(password)
+        preferences_data = validated_data.pop('preferences', {})
+        email = validated_data.get('email')
+        validated_data['username'] = email
+        
+        password = validated_data.pop('password', None)
+        user = User(**validated_data)
+        user.preferences = preferences_data
+        
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+        
         user.save()
         return user
 
+    def validate_email(self, value):
+        user = self.context['request'].user
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError("This email is already in use.")
+        return value
+
     def update(self, instance, validated_data):
-        preferences = validated_data.get('preferences')
-        if preferences is not None:
-            instance.preferences = preferences
-        return super().update(instance, validated_data)
+        preferences_data = validated_data.pop('preferences', None)
+        password = validated_data.pop('password', None)
+
+        # Update preferences if provided
+        if preferences_data:
+            instance.preferences = preferences_data
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Handle password update
+        if password:
+            instance.set_password(password)
+
+        instance.save()
+        return instance

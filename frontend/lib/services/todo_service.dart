@@ -37,8 +37,13 @@ class TodoService {
     return todos.where((todo) => !todo.isCompleted).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDate(DateTime date) async {
-    final todos = await getNotCompletedTodos();
+  Future<List<TodoModel>> getTodosForDate(DateTime date, {bool onlyNotCompleted = true}) async {
+    List<TodoModel> todos = [];
+    if (onlyNotCompleted) {
+      todos = await getNotCompletedTodos();
+    } else {
+      todos = await getTodos();
+    }
     final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
       if (todo.date == null) return false;
@@ -46,8 +51,13 @@ class TodoService {
     }).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDateWithTime(DateTime date) async {
-    final todos = await getNotCompletedTodos();
+  Future<List<TodoModel>> getTodosForDateWithTime(DateTime date, {bool onlyNotCompleted = true}) async {
+    List<TodoModel> todos = [];
+    if (onlyNotCompleted) {
+      todos = await getNotCompletedTodos();
+    } else {
+      todos = await getTodos();
+    }
     final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
       if (todo.date == null) return false;
@@ -55,8 +65,13 @@ class TodoService {
     }).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDateWithoutTime(DateTime date) async {
-    final todos = await getNotCompletedTodos();
+  Future<List<TodoModel>> getTodosForDateWithoutTime(DateTime date, {bool onlyNotCompleted = true}) async {
+    List<TodoModel> todos = [];
+    if (onlyNotCompleted) {
+      todos = await getNotCompletedTodos();
+    } else {
+      todos = await getTodos();
+    }
     final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
       if (todo.date == null) return false;

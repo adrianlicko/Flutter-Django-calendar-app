@@ -6,6 +6,7 @@ class UserDataModel {
   final String firstName;
   final String lastName;
   final UserPreferencesModel preferences;
+  final String? password;
 
   UserDataModel({
     required this.id,
@@ -13,6 +14,7 @@ class UserDataModel {
     required this.firstName,
     required this.lastName,
     required this.preferences,
+    this.password,
   });
 
   factory UserDataModel.fromJson(Map<String, dynamic> json) {
@@ -26,12 +28,15 @@ class UserDataModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final Map<String, dynamic> data = {
       'email': email,
       'first_name': firstName,
       'last_name': lastName,
       'preferences': preferences.toJson(),
     };
+    if (password != null && password!.isNotEmpty) {
+      data['password'] = password;
+    }
+    return data;
   }
 }

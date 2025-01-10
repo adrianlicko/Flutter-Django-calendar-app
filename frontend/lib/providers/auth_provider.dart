@@ -53,6 +53,7 @@ class AuthProvider with ChangeNotifier {
       await prefs.setString('accessToken', tokens['access']);
       await prefs.setString('refreshToken', tokens['refresh']);
       _authService.setTokens(access: tokens['access'], refresh: tokens['refresh']);
+      _user = await _authService.getCurrentUser();
       _isLoading = false;
       notifyListeners();
       return true;

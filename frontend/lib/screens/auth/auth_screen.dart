@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/components/custom_text_field.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_preferences_model.dart';
 import 'package:frontend/providers/auth_provider.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
-import 'package:frontend/services/user_preferences_service.dart';
+import 'package:frontend/services/user_data_service.dart';
 import 'package:provider/provider.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -19,51 +20,21 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   bool _showLoginScreen = true;
-  final UserPreferencesService _userPreferencesService = locator<UserPreferencesService>();
-
-  Widget _buildTextFormField(
-      {required TextEditingController controller,
-      required String labelText,
-      String? Function(String?)? validator,
-      TextInputType? keyboardType}) {
-    return Container(
-      margin: const EdgeInsets.all(8.0),
-      child: TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return AppLocalizations.of(context)!.areaCannotBeEmpty;
-            }
-            if (validator != null) {
-              return validator(value);
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            labelText: labelText,
-            floatingLabelStyle: const TextStyle(color: Color.fromRGBO(0, 121, 191, 1)),
-            border: const OutlineInputBorder(),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color.fromRGBO(0, 121, 191, 1), width: 2.0),
-            ),
-            errorBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.red, width: 1.0),
-            ),
-          )),
-    );
-  }
+  final UserDataService _userPreferencesService = locator<UserDataService>();
+  bool isButtonLoading = false;
 
   Widget _buildSubmitButton({required String label, required void Function() onPressed}) {
     return SizedBox(
       height: 45.0,
       width: MediaQuery.of(context).size.width * 0.5,
       child: ElevatedButton(
-          onPressed: onPressed,
+          onPressed: isButtonLoading ? () {} : onPressed,
           style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all<Color>(Theme.of(context).primaryColor),
               foregroundColor: WidgetStateProperty.all<Color>(Colors.white)),
-          child: Text(label, style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.white))),
+          child: isButtonLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Text(label, style: Theme.of(context).textTheme.titleSmall!.copyWith(color: Colors.white))),
     );
   }
 
@@ -89,19 +60,19 @@ class _AuthScreenState extends State<AuthScreen> {
               Row(
                 children: [
                   Expanded(
-                      child: _buildTextFormField(
+                      child: CustomTextField(
                           controller: firstNameController,
                           keyboardType: TextInputType.name,
                           labelText: AppLocalizations.of(context)!.firstName)),
                   Expanded(
-                    child: _buildTextFormField(
+                    child: CustomTextField(
                         controller: lastNameController,
                         keyboardType: TextInputType.name,
                         labelText: AppLocalizations.of(context)!.lastName),
                   )
                 ],
               ),
-              _buildTextFormField(
+              CustomTextField(
                 controller: emailController,
                 labelText: AppLocalizations.of(context)!.email,
                 keyboardType: TextInputType.emailAddress,
@@ -112,7 +83,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   return null;
                 },
               ),
-              _buildTextFormField(
+              CustomTextField(
                 controller: passwordController,
                 labelText: AppLocalizations.of(context)!.password,
                 keyboardType: TextInputType.visiblePassword,
@@ -128,11 +99,22 @@ class _AuthScreenState extends State<AuthScreen> {
             label: AppLocalizations.of(context)!.register,
             onPressed: () async {
               if (formKey.currentState!.validate()) {
-                await Provider.of<AuthProvider>(context, listen: false).register(
+                setState(() {
+                  isButtonLoading = true;
+                });
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                await authProvider.register(
                     email: emailController.text,
                     password: passwordController.text,
                     firstName: firstNameController.text,
                     lastName: lastNameController.text);
+                if (authProvider.isAuthenticated && authProvider.user != null) {
+                  final userData = Provider.of<AuthProvider>(context, listen: false).user;
+                  locator<UserDataService>().trySetPreferredPreferences(context, userData: userData!);
+                }
+                setState(() {
+                  isButtonLoading = false;
+                });
               }
             }),
         _buildSwitchAuthButton(
@@ -156,7 +138,7 @@ class _AuthScreenState extends State<AuthScreen> {
         Form(
             key: formKey,
             child: Column(children: [
-              _buildTextFormField(
+              CustomTextField(
                 controller: emailController,
                 labelText: AppLocalizations.of(context)!.email,
                 keyboardType: TextInputType.emailAddress,
@@ -167,7 +149,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   return null;
                 },
               ),
-              _buildTextFormField(
+              CustomTextField(
                 controller: passwordController,
                 labelText: AppLocalizations.of(context)!.password,
                 keyboardType: TextInputType.visiblePassword,
@@ -183,8 +165,18 @@ class _AuthScreenState extends State<AuthScreen> {
             label: AppLocalizations.of(context)!.login,
             onPressed: () async {
               if (formKey.currentState!.validate()) {
-                await Provider.of<AuthProvider>(context, listen: false)
-                    .login(email: emailController.text, password: passwordController.text);
+                setState(() {
+                  isButtonLoading = true;
+                });
+                final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                await authProvider.login(email: emailController.text, password: passwordController.text);
+                if (authProvider.isAuthenticated && authProvider.user != null) {
+                  final userData = Provider.of<AuthProvider>(context, listen: false).user;
+                  locator<UserDataService>().trySetPreferredPreferences(context, userData: userData!);
+                }
+                setState(() {
+                  isButtonLoading = false;
+                });
               }
             }),
         _buildSwitchAuthButton(
