@@ -24,19 +24,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         preferences_data = validated_data.pop('preferences', {})
-        email = validated_data.get('email')
-        validated_data['username'] = email
-        
         password = validated_data.pop('password', None)
-        user = User(**validated_data)
-        user.preferences = preferences_data
-        
-        if password:
-            user.set_password(password)
-        else:
-            user.set_unusable_password()
-        
-        user.save()
+        email = validated_data.pop('email')
+
+        user = User.objects.create_user(
+            email=email,
+            password=password,
+            preferences=preferences_data,
+            **validated_data
+        )
         return user
 
     def validate_email(self, value):
