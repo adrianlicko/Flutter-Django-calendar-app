@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'todos',
     'schedules',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+# for development
+CORS_ALLOW_ALL_ORIGINS = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -72,8 +76,8 @@ AUTH_USER_MODEL = 'users.User'
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=2),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
