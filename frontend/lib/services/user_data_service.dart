@@ -34,6 +34,7 @@ class UserDataService {
     if (response != null && response.statusCode == 200) {
       return UserPreferencesModel.fromJson(jsonDecode(response.body)['preferences']);
     } else {
+      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToUpdateUserSettings);
       return null;
     }
   }

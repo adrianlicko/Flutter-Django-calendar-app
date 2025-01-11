@@ -49,7 +49,7 @@ class AuthService {
         'last_name': lastName,
         'preferences': defaultPreferences.toJson(),
       }),
-      requireAuth: false, 
+      requireAuth: false,
     );
 
     return response != null && response.statusCode == 201;
@@ -152,28 +152,36 @@ class AuthService {
       bool refreshed = await refreshAccessToken();
       if (refreshed) {
         requestHeaders['Authorization'] = 'Bearer $_accessToken';
-        switch (method.toUpperCase()) {
-          case 'GET':
-            response = await http.get(url, headers: requestHeaders);
-            break;
-          case 'POST':
-            response = await http.post(url, headers: requestHeaders, body: body);
-            break;
-          case 'PATCH':
-            response = await http.patch(url, headers: requestHeaders, body: body);
-            break;
-          case 'DELETE':
-            response = await http.delete(url, headers: requestHeaders);
-            break;
-          default:
-            throw UnsupportedError('Unsupported HTTP method: $method');
+        try {
+          switch (method.toUpperCase()) {
+            case 'GET':
+              response = await http.get(url, headers: requestHeaders);
+              break;
+            case 'POST':
+              response = await http.post(url, headers: requestHeaders, body: body);
+              break;
+            case 'PATCH':
+              response = await http.patch(url, headers: requestHeaders, body: body);
+              break;
+            case 'DELETE':
+              response = await http.delete(url, headers: requestHeaders);
+              break;
+            default:
+              throw UnsupportedError('Unsupported HTTP method: $method');
+          }
+        } catch (e) {
+          print('HTTP Request Error after refresh: $e');
+          return null;
         }
 
         if (response.statusCode == 401) {
           await logout();
+          return null;
         }
+        return response;
       } else {
         await logout();
+        return null;
       }
     }
     return response;
