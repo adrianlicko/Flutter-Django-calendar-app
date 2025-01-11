@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/components/custom_text_field.dart';
+import 'package:frontend/components/error_notifier.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_preferences_model.dart';
@@ -22,6 +23,21 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _showLoginScreen = true;
   final UserDataService _userPreferencesService = locator<UserDataService>();
   bool isButtonLoading = false;
+  late LocaleProvider localeProvider;
+  GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
+  TextEditingController registerFirstNameController = TextEditingController();
+  TextEditingController registerLastNameController = TextEditingController();
+  TextEditingController registerEmailController = TextEditingController();
+  TextEditingController registerPasswordController = TextEditingController();
+  GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  TextEditingController loginEmailController = TextEditingController();
+  TextEditingController loginPasswordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+  }
 
   Widget _buildSubmitButton({required String label, required void Function() onPressed}) {
     return SizedBox(
@@ -46,34 +62,28 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget _buildRegisterWidget() {
-    GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    TextEditingController firstNameController = TextEditingController();
-    TextEditingController lastNameController = TextEditingController();
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-
     return Column(
       children: [
         Form(
-            key: formKey,
+            key: registerFormKey,
             child: Column(children: [
               Row(
                 children: [
                   Expanded(
                       child: CustomTextField(
-                          controller: firstNameController,
+                          controller: registerFirstNameController,
                           keyboardType: TextInputType.name,
                           labelText: AppLocalizations.of(context)!.firstName)),
                   Expanded(
                     child: CustomTextField(
-                        controller: lastNameController,
+                        controller: registerLastNameController,
                         keyboardType: TextInputType.name,
                         labelText: AppLocalizations.of(context)!.lastName),
                   )
                 ],
               ),
               CustomTextField(
-                controller: emailController,
+                controller: registerEmailController,
                 labelText: AppLocalizations.of(context)!.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
@@ -84,9 +94,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 },
               ),
               CustomTextField(
-                controller: passwordController,
+                controller: registerPasswordController,
                 labelText: AppLocalizations.of(context)!.password,
                 keyboardType: TextInputType.visiblePassword,
+                obscureText: true,
                 validator: (value) {
                   if (value!.length < 6) {
                     return AppLocalizations.of(context)!.passwordMustBeLonger;
@@ -98,16 +109,23 @@ class _AuthScreenState extends State<AuthScreen> {
         _buildSubmitButton(
             label: AppLocalizations.of(context)!.register,
             onPressed: () async {
-              if (formKey.currentState!.validate()) {
+              if (registerFormKey.currentState!.validate()) {
                 setState(() {
                   isButtonLoading = true;
                 });
                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                await authProvider.register(
-                    email: emailController.text,
-                    password: passwordController.text,
-                    firstName: firstNameController.text,
-                    lastName: lastNameController.text);
+                bool success = await authProvider.register(
+                    email: registerEmailController.text,
+                    password: registerPasswordController.text,
+                    firstName: registerFirstNameController.text,
+                    lastName: registerLastNameController.text);
+                if (!success) {
+                  ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToRegister);
+                  setState(() {
+                    isButtonLoading = false;
+                  });
+                  return;
+                }
                 if (authProvider.isAuthenticated && authProvider.user != null) {
                   final userData = Provider.of<AuthProvider>(context, listen: false).user;
                   locator<UserDataService>().trySetPreferredPreferences(context, userData: userData!);
@@ -129,17 +147,13 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Widget _buildLoginWidget() {
-    GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-
     return Column(
       children: [
         Form(
-            key: formKey,
+            key: loginFormKey,
             child: Column(children: [
               CustomTextField(
-                controller: emailController,
+                controller: loginEmailController,
                 labelText: AppLocalizations.of(context)!.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
@@ -150,9 +164,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 },
               ),
               CustomTextField(
-                controller: passwordController,
+                controller: loginPasswordController,
                 labelText: AppLocalizations.of(context)!.password,
                 keyboardType: TextInputType.visiblePassword,
+                obscureText: true,
                 validator: (value) {
                   if (value!.length < 6) {
                     return AppLocalizations.of(context)!.passwordMustBeLonger;
@@ -164,19 +179,24 @@ class _AuthScreenState extends State<AuthScreen> {
         _buildSubmitButton(
             label: AppLocalizations.of(context)!.login,
             onPressed: () async {
-              if (formKey.currentState!.validate()) {
+              if (loginFormKey.currentState!.validate()) {
                 setState(() {
                   isButtonLoading = true;
                 });
                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                await authProvider.login(email: emailController.text, password: passwordController.text);
+                bool success =
+                    await authProvider.login(email: loginEmailController.text, password: loginPasswordController.text);
+                if (!success) {
+                  ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToLogin);
+                  setState(() {
+                    isButtonLoading = false;
+                  });
+                  return;
+                }
                 if (authProvider.isAuthenticated && authProvider.user != null) {
                   final userData = Provider.of<AuthProvider>(context, listen: false).user;
                   locator<UserDataService>().trySetPreferredPreferences(context, userData: userData!);
                 }
-                setState(() {
-                  isButtonLoading = false;
-                });
               }
             }),
         _buildSwitchAuthButton(
@@ -192,8 +212,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = Provider.of<LocaleProvider>(context);
-
     return AppScaffold(
         body: Center(
       child: Padding(
@@ -208,7 +226,7 @@ class _AuthScreenState extends State<AuthScreen> {
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
-                  _userPreferencesService.updatePreferences(UserPreferencesModel(
+                  _userPreferencesService.updatePreferences(context, UserPreferencesModel(
                     locale: newLocale,
                     theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
                     showTodosInCalendar: true,
@@ -220,7 +238,11 @@ class _AuthScreenState extends State<AuthScreen> {
                 final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
                 return DropdownMenuItem(
                   value: locale,
-                  child: Text(flag, style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.black)),
+                  child: Text(flag,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)),
                 );
               }).toList(),
             ),

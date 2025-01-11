@@ -61,7 +61,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     setState(() {
       _isLoadingData = true;
     });
-    schedules = await locator<ScheduleService>().getSchedules();
+    schedules = await locator<ScheduleService>().getSchedules(context);
     setState(() {
       _isLoadingData = false;
     });
@@ -74,7 +74,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
           icon: const Icon(Icons.delete),
           onPressed: () {
             setState(() {
-              locator<TodoService>().deleteTodos(selectedTodos.map((todo) => todo.id!).toList());
+              selectedTodos.forEach((todo) async {
+                locator<TodoService>().deleteTodo(context, todo.id!);
+              });
               selectedDayTodosWithTime.removeWhere((todo) => selectedTodos.contains(todo));
               selectedTodos.clear();
               _selectionMode = false;
@@ -101,7 +103,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
 
     if (newSchedule != null) {
-      await locator<ScheduleService>().addSchedule(newSchedule);
+      await locator<ScheduleService>().addSchedule(context, newSchedule);
       await _fetchSchedules();
       setState(() {});
     }
@@ -134,7 +136,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
 
     if (newTodo != null) {
-      await locator<TodoService>().addTodo(newTodo);
+      await locator<TodoService>().addTodo(context, newTodo);
       _fetchTodos(selectedDate);
       setState(() {});
     }
@@ -324,12 +326,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onDismissed: (direction) {
               setState(() {
                 schedules.remove(schedule);
-                locator<ScheduleService>().deleteSchedule(schedule.id!);
+                locator<ScheduleService>().deleteSchedule(context, schedule.id!);
               });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${schedule.title} ${AppLocalizations.of(context)!.wasRemoved}')),
-              );
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -412,13 +410,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         setState(() {
           todo.isCompleted = !todo.isCompleted;
         });
-        try {
-          await locator<TodoService>().updateTodo(todo);
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update todo: $e')),
-          );
-        }
+        await locator<TodoService>().updateTodo(context, todo);
       },
     );
   }
@@ -429,10 +421,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     });
     if (_userData.preferences.showTodosInCalendar) {
       selectedDayTodosWithTime = await locator<TodoService>()
-          .getTodosForDateWithTime(date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
+          .getTodosForDateWithTime(context, date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
     }
     selectedDayTodosWithoutTime = await locator<TodoService>()
-        .getTodosForDateWithoutTime(date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
+        .getTodosForDateWithoutTime(context, date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
     setState(() {
       _isLoadingData = false;
     });

@@ -27,5 +27,16 @@
   "alreadyHaveAccount": "Already have account?",
   "dontHaveAccountYet": "Don`t have account yet?",
   "changeName": "Change name",
-  "save": "Save"
+  "save": "Save",
+  "failedToLogin": "Failed to login",
+  "failedToRegister": "Failed to register",
+  "failedToAddTodo": "Failed to add todo",
+  "failedToUpdateTodo": "Failed to update todo",
+  "failedToDeleteTodo": "Failed to delete todo",
+  "failedToGetTodos": "Failed to get todos",
+  "failedToUpdateUserData": "Failed to update user data",
+  "failedToUpdateUserSettings": "Failed to update user settings",
+  "failedToGetSchedules": "Failed to get schedules",
+  "failedToAddSchedule": "Failed to add schedule",
+  "failedToDeleteSchedule": "Failed to delete schedule"
 }

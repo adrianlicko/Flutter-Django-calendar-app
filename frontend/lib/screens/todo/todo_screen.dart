@@ -39,7 +39,7 @@ class _TodoScreenState extends State<TodoScreen> {
     setState(() {
       _isLoadingData = true;
     });
-    todos = await locator<TodoService>().getTodos();
+    todos = await locator<TodoService>().getTodos(context);
     setState(() {
       _isLoadingData = false;
     });
@@ -51,7 +51,9 @@ class _TodoScreenState extends State<TodoScreen> {
         IconButton(
           icon: const Icon(Icons.delete),
           onPressed: () async {
-            await locator<TodoService>().deleteTodos(selectedTodos.map((todo) => todo.id!).toList());
+            selectedTodos.forEach((todo) async {
+              locator<TodoService>().deleteTodo(context, todo.id!);
+            });
             todos.removeWhere((todo) => selectedTodos.contains(todo));
             setState(() {
               selectedTodos.clear();
@@ -110,13 +112,9 @@ class _TodoScreenState extends State<TodoScreen> {
             setState(() {
               todo.isCompleted = !todo.isCompleted;
             });
-            try {
-              await locator<TodoService>().updateTodo(todo);
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Failed to update todo: $e')),
-              );
-            }
+
+            await locator<TodoService>().updateTodo(context, todo);
+            setState(() {});
           },
         );
       }).toList(),
@@ -132,7 +130,7 @@ class _TodoScreenState extends State<TodoScreen> {
     );
 
     if (newTodo != null) {
-      await locator<TodoService>().addTodo(newTodo);
+      await locator<TodoService>().addTodo(context, newTodo);
       setState(() {});
     }
   }

@@ -14,23 +14,24 @@ class AuthService {
   String? get refreshToken => _refreshToken;
 
   Future<UserDataModel?> getCurrentUser() async {
-    final response = await http.get(
-      Uri.parse('${_baseUrl}users/me/'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $_accessToken',
-      },
+    final response = await authenticatedRequest(
+      method: 'GET',
+      endpoint: 'users/me/',
     );
 
-    if (response.statusCode == 200) {
+    if (response != null && response.statusCode == 200) {
       return UserDataModel.fromJson(jsonDecode(response.body));
     } else {
       return null;
     }
   }
 
-  Future<bool> register(
-      {required String email, required String password, required String firstName, required String lastName}) async {
+  Future<bool> register({
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+  }) async {
     final defaultPreferences = UserPreferencesModel(
       locale: const Locale('en'),
       theme: AllAppColors.darkRedColorScheme,
@@ -38,9 +39,9 @@ class AuthService {
       removeTodoFromCalendarWhenCompleted: true,
     );
 
-    final response = await http.post(
-      Uri.parse('${_baseUrl}users/'),
-      headers: {'Content-Type': 'application/json'},
+    final response = await authenticatedRequest(
+      method: 'POST',
+      endpoint: 'users/',
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -48,12 +49,16 @@ class AuthService {
         'last_name': lastName,
         'preferences': defaultPreferences.toJson(),
       }),
+      requireAuth: false, 
     );
 
-    return response.statusCode == 201;
+    return response != null && response.statusCode == 201;
   }
 
-  Future<Map<String, dynamic>?> login({required String email, required String password}) async {
+  Future<Map<String, dynamic>?> login({
+    required String email,
+    required String password,
+  }) async {
     final response = await http.post(
       Uri.parse('${_baseUrl}token/'),
       headers: {'Content-Type': 'application/json'},
@@ -99,5 +104,78 @@ class AuthService {
   Future<void> logout() async {
     _accessToken = null;
     _refreshToken = null;
+  }
+
+  Future<http.Response?> authenticatedRequest({
+    required String method,
+    required String endpoint,
+    Map<String, String>? headers,
+    dynamic body,
+    bool requireAuth = true,
+  }) async {
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
+    };
+
+    if (headers != null) {
+      requestHeaders.addAll(headers);
+    }
+
+    Uri url = Uri.parse('$_baseUrl$endpoint');
+
+    http.Response response;
+
+    try {
+      switch (method.toUpperCase()) {
+        case 'GET':
+          response = await http.get(url, headers: requestHeaders);
+          break;
+        case 'POST':
+          response = await http.post(url, headers: requestHeaders, body: body);
+          break;
+        case 'PATCH':
+          response = await http.patch(url, headers: requestHeaders, body: body);
+          break;
+        case 'DELETE':
+          response = await http.delete(url, headers: requestHeaders);
+          break;
+        default:
+          throw UnsupportedError('Unsupported HTTP method: $method');
+      }
+    } catch (e) {
+      print('HTTP Request Error: $e');
+      return null;
+    }
+
+    if (response.statusCode == 401 && requireAuth) {
+      bool refreshed = await refreshAccessToken();
+      if (refreshed) {
+        requestHeaders['Authorization'] = 'Bearer $_accessToken';
+        switch (method.toUpperCase()) {
+          case 'GET':
+            response = await http.get(url, headers: requestHeaders);
+            break;
+          case 'POST':
+            response = await http.post(url, headers: requestHeaders, body: body);
+            break;
+          case 'PATCH':
+            response = await http.patch(url, headers: requestHeaders, body: body);
+            break;
+          case 'DELETE':
+            response = await http.delete(url, headers: requestHeaders);
+            break;
+          default:
+            throw UnsupportedError('Unsupported HTTP method: $method');
+        }
+
+        if (response.statusCode == 401) {
+          await logout();
+        }
+      } else {
+        await logout();
+      }
+    }
+    return response;
   }
 }

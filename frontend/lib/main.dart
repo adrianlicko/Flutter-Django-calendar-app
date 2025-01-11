@@ -50,23 +50,20 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _tryAutoLogin() async {
     final success = await authProvider.tryAutoLogin();
-    if (!success) {
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-    user = authProvider.user!;
-    locator<UserDataService>().trySetPreferredPreferences(context, userData: user!);
     setState(() {
       isLoading = false;
     });
+
+    if (success) {
+      user = authProvider.user!;
+      locator<UserDataService>().trySetPreferredPreferences(context, userData: user!);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const LoadingScreen();
+      return const MaterialApp(home: LoadingScreen());
     }
     final localeProvider = Provider.of<LocaleProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);

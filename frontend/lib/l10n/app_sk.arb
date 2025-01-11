@@ -27,5 +27,16 @@
   "alreadyHaveAccount": "Už máte účet?",
   "dontHaveAccountYet": "Ešte nemáte účet?",
   "changeName": "Zmeniť meno",
-  "save": "Uložiť"
+  "save": "Uložiť",
+  "failedToLogin": "Nepodarilo sa prihlásiť",
+  "failedToRegister": "Nepodarilo sa registrovať",
+  "failedToAddTodo": "Úlohu sa nepodarilo pridať",
+  "failedToUpdateTodo": "Úlohu sa nepodarilo aktualizovať",
+  "failedToDeleteTodo": "Úlohu sa nepodarilo vymazať",
+  "failedToGetTodos": "Nepodarilo sa získať ToDo úlohy",
+  "failedToUpdateUserData": "Nepodarilo sa aktualizovať používateľské údaje",
+  "failedToUpdateUserSettings": "Nepodarilo sa aktualizovať používateľské nastavenia",
+  "failedToGetSchedules": "Nepodarilo sa získať rozvrh hodín",
+  "failedToAddSchedule": "Nepodarilo sa pridať rozvrh hodín",
+  "failedToDeleteSchedule": "Nepodarilo sa vymazať rozvrh hodín"
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_data_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = locator<AuthService>();
@@ -65,7 +65,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _authService.logout();
+    await _authService.logout();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('accessToken');
     await prefs.remove('refreshToken');
@@ -80,8 +80,14 @@ class AuthProvider with ChangeNotifier {
 
     if (access != null && refresh != null) {
       _authService.setTokens(access: access, refresh: refresh);
-      _user = await _authService.getCurrentUser();
 
+      bool refreshed = await refreshToken();
+      if (!refreshed) {
+        await logout();
+        return false;
+      }
+
+      _user = await _authService.getCurrentUser();
       notifyListeners();
       return true;
     }
@@ -93,6 +99,7 @@ class AuthProvider with ChangeNotifier {
     if (success) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('accessToken', _authService.accessToken!);
+      _user = await _authService.getCurrentUser();
       notifyListeners();
       return true;
     }

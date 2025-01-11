@@ -1,28 +1,24 @@
+import 'package:flutter/material.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/schedule_model.dart';
 import 'package:frontend/services/auth_service.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class ScheduleService {
   final AuthService _authService = locator<AuthService>();
   List<ScheduleModel> _schedules = [];
-  final String _baseUrl = "http://localhost:8000/api/schedules/";
 
-  Future<List<ScheduleModel>> getSchedules() async {
+  Future<List<ScheduleModel>> getSchedules(BuildContext context) async {
     if (_schedules.isNotEmpty) {
       return Future.value(_schedules);
     }
-    final String token = _authService.accessToken!;
-    final response = await http.get(
-      Uri.parse(_baseUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+
+    final response = await _authService.authenticatedRequest(
+      method: 'GET',
+      endpoint: 'schedules/',
     );
 
-    if (response.statusCode == 200) {
+    if (response != null && response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       _schedules = data.map((json) => ScheduleModel.fromJson(json)).toList();
       return _schedules;
@@ -31,34 +27,32 @@ class ScheduleService {
     }
   }
 
-  Future<ScheduleModel?> addSchedule(ScheduleModel schedule) async {
-    final String token = _authService.accessToken!;
-    final response = await http.post(Uri.parse(_baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(schedule.toJson()));
+  Future<ScheduleModel?> addSchedule(BuildContext context, ScheduleModel schedule) async {
+    final response = await _authService.authenticatedRequest(
+      method: 'POST',
+      endpoint: 'schedules/',
+      body: json.encode(schedule.toJson()),
+    );
 
-    if (response.statusCode == 201) {
+    if (response != null && response.statusCode == 201) {
       final newSchedule = ScheduleModel.fromJson(jsonDecode(response.body));
       _schedules.add(newSchedule);
       return newSchedule;
     } else {
-      throw Exception('Failed add schedule');
+      throw Exception('Failed to add schedule');
     }
   }
 
-  Future<void> deleteSchedule(int scheduleId) async {
-    final String token = _authService.accessToken!;
-    final response = await http.delete(Uri.parse('$_baseUrl$scheduleId/'), headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 204) {
+  Future<void> deleteSchedule(BuildContext context, int scheduleId) async {
+    final response = await _authService.authenticatedRequest(
+      method: 'DELETE',
+      endpoint: 'schedules/$scheduleId/',
+    );
+
+    if (response != null && response.statusCode == 204) {
       _schedules.removeWhere((schedule) => schedule.id == scheduleId);
     } else {
-      throw Exception('Failed to delete todo');
+      throw Exception('Failed to delete schedule');
     }
   }
 }

@@ -158,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             Form(
               key: _isPasswordTextFieldEnabled ? _passwordKey : null,
               child:
-                  CustomTextField(controller: _passwordController, labelText: AppLocalizations.of(context)!.password),
+                  CustomTextField(controller: _passwordController, obscureText: true, labelText: AppLocalizations.of(context)!.password),
             ),
           if (_isNameTextFieldEnabled || _isEmailTextFieldEnabled || _isPasswordTextFieldEnabled)
             Align(
@@ -176,7 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               setState(() {
                                 isButtonLoading = true;
                               });
-                              final response = await _userDataService.updateUserData(UserDataModel(
+                              final response = await _userDataService.updateUserData(context, UserDataModel(
                                   id: _userData.id,
                                   email: _isEmailTextFieldEnabled ? _emailController.text : _userData.email,
                                   firstName: _isNameTextFieldEnabled ? _firstNameController.text : _userData.firstName,
@@ -187,6 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               setState(() {
                                 isButtonLoading = false;
                                 _firstNameController.text = '';
+                                _lastNameController.text = '';
                                 _emailController.text = '';
                                 _isNameTextFieldEnabled = false;
                                 _emailController.text = '';
@@ -225,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   title: AppLocalizations.of(context)!.showTodoTasksInCalendar,
                   isEnabled: _userData.preferences.showTodosInCalendar,
                   onTap: (value) async {
-                    final response = await _userDataService.updatePreferences(UserPreferencesModel(
+                    final response = await _userDataService.updatePreferences(context, UserPreferencesModel(
                       locale: _userData.preferences.locale,
                       theme: _userData.preferences.theme,
                       showTodosInCalendar: value!,
@@ -240,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   optionColor: _userData.preferences.showTodosInCalendar ? null : Colors.grey[700],
                   onTap: (value) async {
                     if (!_userData.preferences.showTodosInCalendar) return;
-                    final response = await _userDataService.updatePreferences(UserPreferencesModel(
+                    final response = await _userDataService.updatePreferences(context, UserPreferencesModel(
                       locale: _userData.preferences.locale,
                       theme: _userData.preferences.theme,
                       showTodosInCalendar: _userData.preferences.showTodosInCalendar,
@@ -263,7 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
                   _userData.preferences.setLocale(newLocale);
-                  _userDataService.updatePreferences(UserPreferencesModel(
+                  _userDataService.updatePreferences(context, UserPreferencesModel(
                     locale: newLocale,
                     theme: _userData.preferences.theme,
                     showTodosInCalendar: _userData.preferences.showTodosInCalendar,
@@ -293,7 +294,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 if (newTheme != null) {
                   themeProvider.setTheme(newTheme);
                   _userData.preferences.setTheme(newTheme);
-                  _userDataService.updatePreferences(UserPreferencesModel(
+                  _userDataService.updatePreferences(context, UserPreferencesModel(
                     locale: _userData.preferences.locale,
                     theme: newTheme,
                     showTodosInCalendar: _userData.preferences.showTodosInCalendar,

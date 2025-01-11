@@ -1,48 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/components/error_notifier.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/auth_service.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TodoService {
   final AuthService _authService = locator<AuthService>();
   List<TodoModel> _todos = [];
 
-  final String _baseUrl = 'http://127.0.0.1:8000/api/todos/';
-
-  Future<List<TodoModel>> getTodos({bool forceFetch = false}) async {
-    if (_todos.isNotEmpty && !forceFetch) {
+  Future<List<TodoModel>> getTodos(BuildContext context) async {
+    if (_todos.isNotEmpty) {
       return Future.value(_todos);
     }
-    final String token = _authService.accessToken!;
-    final response = await http.get(
-      Uri.parse(_baseUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+
+    final response = await _authService.authenticatedRequest(
+      method: 'GET',
+      endpoint: 'todos/',
     );
 
-    if (response.statusCode == 200) {
+    if (response != null && response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       _todos = data.map((json) => TodoModel.fromJson(json)).toList();
       return _todos;
     } else {
+      if (response?.statusCode != 200) {
+        ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToGetTodos);
+      }
       return List<TodoModel>.empty();
     }
   }
 
-  Future<List<TodoModel>> getNotCompletedTodos() async {
-    final todos = await getTodos();
+  Future<List<TodoModel>> getNotCompletedTodos(BuildContext context) async {
+    final todos = await getTodos(context);
     return todos.where((todo) => !todo.isCompleted).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDate(DateTime date, {bool onlyNotCompleted = true}) async {
+  Future<List<TodoModel>> getTodosForDate(BuildContext context, DateTime date, {bool onlyNotCompleted = true}) async {
     List<TodoModel> todos = [];
     if (onlyNotCompleted) {
-      todos = await getNotCompletedTodos();
+      todos = await getNotCompletedTodos(context);
     } else {
-      todos = await getTodos();
+      todos = await getTodos(context);
     }
     final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
@@ -51,12 +51,12 @@ class TodoService {
     }).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDateWithTime(DateTime date, {bool onlyNotCompleted = true}) async {
+  Future<List<TodoModel>> getTodosForDateWithTime(BuildContext context, DateTime date, {bool onlyNotCompleted = true}) async {
     List<TodoModel> todos = [];
     if (onlyNotCompleted) {
-      todos = await getNotCompletedTodos();
+      todos = await getNotCompletedTodos(context);
     } else {
-      todos = await getTodos();
+      todos = await getTodos(context);
     }
     final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
@@ -65,12 +65,12 @@ class TodoService {
     }).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDateWithoutTime(DateTime date, {bool onlyNotCompleted = true}) async {
+  Future<List<TodoModel>> getTodosForDateWithoutTime(BuildContext context, DateTime date, {bool onlyNotCompleted = true}) async {
     List<TodoModel> todos = [];
     if (onlyNotCompleted) {
-      todos = await getNotCompletedTodos();
+      todos = await getNotCompletedTodos(context);
     } else {
-      todos = await getTodos();
+      todos = await getTodos(context);
     }
     final givenDate = DateTime(date.year, date.month, date.day);
     return todos.where((todo) {
@@ -79,60 +79,53 @@ class TodoService {
     }).toList();
   }
 
-  Future<TodoModel?> updateTodo(TodoModel todo) async {
-  final String token = _authService.accessToken!;
-  final response = await http.patch(
-    Uri.parse('$_baseUrl${todo.id}/'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-    body: jsonEncode(todo.toJson()),
-  );
+  Future<TodoModel?> addTodo(BuildContext context, TodoModel todo) async {
+    final response = await _authService.authenticatedRequest(
+      method: 'POST',
+      endpoint: 'todos/',
+      body: json.encode(todo.toJson()),
+    );
 
-  if (response.statusCode == 200) {
-    return TodoModel.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Failed to update todo');
-  }
-}
-
-  Future<TodoModel?> addTodo(TodoModel todo) async {
-    final String token = _authService.accessToken!;
-    final response = await http.post(Uri.parse(_baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(todo.toJson()));
-
-    if (response.statusCode == 201) {
+    if (response != null && response.statusCode == 201) {
       final newTodo = TodoModel.fromJson(jsonDecode(response.body));
       _todos.add(newTodo);
       return newTodo;
     } else {
-      print('Failed to add todo: ${response.statusCode} ${response.body}');
-      throw Exception('Failed add todo');
+      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToAddTodo);
+      return null;
     }
   }
 
-  Future<void> deleteTodos(List<int> todoIds) async {
-    for (var todoId in todoIds) {
-      deleteTodo(todoId);
-    }
-  }
+  Future<void> deleteTodo(BuildContext context, int todoId) async {
+    final response = await _authService.authenticatedRequest(
+      method: 'DELETE',
+      endpoint: 'todos/$todoId/',
+    );
 
-  Future<bool> deleteTodo(int todoId) async {
-    final String token = _authService.accessToken!;
-    final response = await http.delete(Uri.parse('$_baseUrl$todoId/'), headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    });
-    if (response.statusCode == 204) {
+    if (response != null && response.statusCode == 204) {
       _todos.removeWhere((todo) => todo.id == todoId);
-      return true;
     } else {
-      throw Exception('Failed to delete todo');
+      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToDeleteTodo);
+    }
+  }
+
+  Future<TodoModel?> updateTodo(BuildContext context, TodoModel todo) async {
+    final response = await _authService.authenticatedRequest(
+      method: 'PATCH',
+      endpoint: 'todos/${todo.id}/',
+      body: json.encode(todo.toJson()),
+    );
+
+    if (response != null && response.statusCode == 200) {
+      final updatedTodo = TodoModel.fromJson(jsonDecode(response.body));
+      int index = _todos.indexWhere((t) => t.id == updatedTodo.id);
+      if (index != -1) {
+        _todos[index] = updatedTodo;
+      }
+      return updatedTodo;
+    } else {
+      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToUpdateTodo);
+      return null;
     }
   }
 }
