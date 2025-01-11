@@ -10,6 +10,7 @@ This project is a starting point for a Flutter application.
 ```bash
 flutter pub get # download packages
 flutter gen-l10n # generate app localizations
+flutter run --web-port 3000 # start the app, options will be displayed: select the preferred platform
 ```
 
 ## A few resources to get you started if this is your first Flutter project:

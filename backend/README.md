@@ -5,6 +5,9 @@ pip install virtualenv
 python -m venv venv
 source venv/Scripts/activate
 
+python manage.py makemigrations # create migration files for the database
+python manage.py migrate # apply migrations
+
 pip install -r requirements.txt # install required packages
 python manage.py runserver # start server
 ```
