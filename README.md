@@ -6,3 +6,13 @@ As the repository name suggests, the application is designed for creating, editi
 ## Popis aplikácie
 
 Ako už naznačuje názov repozitára, aplikácia slúži na vytváranie, úpravu a organizáciu rozvrhu a úloh. Aplikácia dokáže pekne a prehľadne zobrazovať plány na určité dni, či už ide o rozvrh hodín do školy alebo iné úlohy. Používateľ sa musí do aplikácie prihlásiť, vďaka čomu patria jeho údaje len jemu. Taktiež si môže zmeniť alebo prispôsobiť prostredie aplikácie podľa svojich preferencií. Aplikácia je vhodná nielen pre študentov, ale pre všetky skupiny ľudí, ktorí majú nabitý program počas dňa alebo jednoducho chcú zvýšiť svoju efektivitu.
+
+
+## Sources:
+<h3>Flutter:</h3> 
+<a href="https://www.youtube.com/watch?v=j_rCDc_X-k8&list=PL4cUxeGkcC9giLVXCHSQmWqlHc9BLXdVx">Net Ninja's youtube playlist</a>
+
+<h3>Django</h3>
+<a href="https://www.youtube.com/watch?v=t-uAgI-AUxc">Tech With Tim REST API</a>
+<br>
+<a href="https://www.youtube.com/watch?v=6f-J80vqvew&list=PLQ8x_VWW6Aktg8FNSIKCRYtFg_ZO5oPEG">David Šetek full Django tutorial</a>
