@@ -16,3 +16,20 @@ Ako už naznačuje názov repozitára, aplikácia slúži na vytváranie, úprav
 <a href="https://www.youtube.com/watch?v=t-uAgI-AUxc">Tech With Tim REST API</a>
 <br>
 <a href="https://www.youtube.com/watch?v=6f-J80vqvew&list=PLQ8x_VWW6Aktg8FNSIKCRYtFg_ZO5oPEG">David Šetek full Django tutorial</a>
+
+# Screenshots from the App
+### Registration & Login
+![registration](https://github.com/user-attachments/assets/81ec30f4-1ea3-43fd-9bbf-70183f6ea2d7)
+![login](https://github.com/user-attachments/assets/2e06bea4-c5c5-4f92-abc5-050607038eb7)
+### Home
+![home_screen](https://github.com/user-attachments/assets/bedf03b6-d10f-4079-bf29-f6820c0bcf03)
+![image](https://github.com/user-attachments/assets/06e1caa1-bd4a-4445-be6a-b99a257bda94)
+### Calendar
+![calendar_screen](https://github.com/user-attachments/assets/7572eeea-be6a-4b85-b24f-8a5b4e42d213)
+![calendar_screen_different_theme](https://github.com/user-attachments/assets/d9340813-61d6-4129-80d3-1d306901fe54)
+### To Do
+![todo_screen](https://github.com/user-attachments/assets/e507b83e-5305-490b-93b3-f2871823f34c)
+![todo_screen_different_theme](https://github.com/user-attachments/assets/fd154ac0-9268-4010-a604-bb81214df390)
+### Profile
+![profile_screen](https://github.com/user-attachments/assets/96318cf9-de3d-4084-a1cc-2ebea9c1498e)
+![profile_screen_different_theme](https://github.com/user-attachments/assets/394e647b-b71b-42fe-9e7c-28335ced69a2)
