@@ -6,6 +6,7 @@ class CardBanner extends StatelessWidget {
   final void Function() onTap;
   final Widget? icon;
   final bool halfWidth;
+  final EdgeInsetsGeometry? padding;
 
   const CardBanner({
     super.key,
@@ -14,6 +15,7 @@ class CardBanner extends StatelessWidget {
     required this.onTap,
     this.icon,
     this.halfWidth = false,
+    this.padding,
   });
 
   @override
@@ -38,7 +40,7 @@ class CardBanner extends StatelessWidget {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: padding ?? const EdgeInsets.symmetric(horizontal: 24.0),
               child: Stack(
                 children: [
                   Align(alignment: Alignment.centerRight, child: icon ?? Container()),

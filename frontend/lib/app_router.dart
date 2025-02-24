@@ -1,5 +1,6 @@
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/screens/calendar_screen.dart';
+import 'package:frontend/screens/communication_with_native_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/screens/todo/todo_detail_screen.dart';
@@ -55,6 +56,11 @@ GoRouter createRouter(AuthProvider authProvider) => GoRouter(
           name: 'profile',
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          name: 'scan',
+          path: '/scan',
+          builder: (context, state) => const CommunicationWithNativeScreen(),
         ),
       ],
     );

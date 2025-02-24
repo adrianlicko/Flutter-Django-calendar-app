@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/card_banner.dart';
 import 'dart:math' as math;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/screens/communication_with_native_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -69,6 +71,19 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildScanIcon() {
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..scale(1.1)
+        ..rotateZ(0 * (math.pi / 180)),
+      child: Image.asset(
+        "images/camera_scanner_icon.png",
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -85,12 +100,28 @@ class HomeScreen extends StatelessWidget {
             gradientColors: [Colors.red[700]!, Colors.purple],
             icon: _buildTodoIcon(),
             onTap: () => context.push('/todo')),
-        CardBanner(
-          title: AppLocalizations.of(context)!.profile,
-          gradientColors: [Colors.grey[700]!, Colors.grey],
-          icon: _buildProfileIcon(),
-          halfWidth: true,
-          onTap: () => context.push('/profile'),
+        Row(
+          children: [
+            Flexible(
+              flex: 1,
+              child: CardBanner(
+                title: AppLocalizations.of(context)!.profile,
+                gradientColors: [Colors.grey[700]!, Colors.grey],
+                icon: _buildProfileIcon(),
+                onTap: () => context.push('/profile'),
+              ),
+            ),
+            Flexible(
+              flex: 1,
+              child: CardBanner(
+                title: "Scan",
+                gradientColors: [Colors.purple[700]!, Colors.blue[800]!],
+                icon: _buildScanIcon(),
+                padding: const EdgeInsets.only(left: 24.0),
+                onTap: () => context.push('/scan'),
+              ),
+            ),
+          ],
         ),
       ],
     ));
