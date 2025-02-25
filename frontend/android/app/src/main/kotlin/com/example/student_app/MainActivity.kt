@@ -1,5 +1,6 @@
 package com.example.student_app
 
+import android.content.Intent
 import android.widget.Toast
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -18,6 +19,8 @@ class MainActivity: FlutterActivity() {
                 val userName = call.argument<String>("username")
                 Toast.makeText(this, userName, Toast.LENGTH_LONG).show()
                 result.success(userName)
+            } else if (call.method == "method_scan") {
+                startActivity(Intent(this, ScanActivity::class.java))
             } else {
                 result.notImplemented()
             }

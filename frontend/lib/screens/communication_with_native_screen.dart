@@ -21,6 +21,13 @@ class _CommunicationWithNativeScreenState extends State<CommunicationWithNativeS
     } catch (_) {}
   }
 
+  Future<void> _startScanning() async {
+    try {
+      resultText = await channel.invokeMethod('method_scan');
+      setState(() {});
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     textController.dispose();
@@ -32,15 +39,20 @@ class _CommunicationWithNativeScreenState extends State<CommunicationWithNativeS
     return AppScaffold(
         body: Column(
       children: [
-        TextButton(onPressed: () {
-          String userName = textController.text;
-          if (userName.isEmpty) {
-            userName = "StudentApp";
-          }
-          _callNativeCode(userName);
-        }, child: const Text("Show toast")),
+        TextButton(
+            onPressed: () {
+              String userName = textController.text;
+              if (userName.isEmpty) {
+                userName = "StudentApp";
+              }
+              _callNativeCode(userName);
+            },
+            child: const Text("Show toast")),
         const SizedBox(height: 24),
-        TextField(controller: textController)
+        TextField(controller: textController),
+        TextButton(onPressed: () {
+          _startScanning();
+        }, child: Text("Start scanning"))
       ],
     ));
   }
