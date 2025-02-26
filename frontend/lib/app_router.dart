@@ -14,9 +14,9 @@ GoRouter createRouter(AuthProvider authProvider) => GoRouter(
       refreshListenable: authProvider,
       redirect: (context, state) {
         final isLoggedIn = authProvider.isAuthenticated;
-        final isLoggingIn = state.matchedLocation == '/auth';
+        final isLoggingIn = state.matchedLocation == '/scan';
 
-        if (!isLoggedIn && !isLoggingIn) return '/auth';
+        if (!isLoggedIn && !isLoggingIn) return '/scan';
         if (isLoggedIn && isLoggingIn) return '/';
         return null;
       },

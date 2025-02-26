@@ -69,6 +69,9 @@ dependencies {
     implementation "androidx.camera:camera-video:$cameraxVersion"
     implementation "androidx.camera:camera-view:$cameraxVersion"
     implementation "androidx.camera:camera-extensions:$cameraxVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+
+    implementation 'com.otaliastudios:cameraview:2.7.2'
 }
 
 flutter {
