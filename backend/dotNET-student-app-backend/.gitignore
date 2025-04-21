@@ -1,0 +1,10 @@
+/dotNET-student-app-backend/bin/
+/dotNET-student-app-backend/obj/
+/.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.ide
+*.sln.ide.user
+*.sln.ide.userprefs
