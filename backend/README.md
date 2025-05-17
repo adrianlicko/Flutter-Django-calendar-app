@@ -18,5 +18,12 @@ docker build -t django_app . # build image
 docker run -p 8000:8000 django_app # start container from the image
 ```
 
+### !!! If you want run flutter app on real device via adb, you need to start the server with this command:
+```bash
+python manage.py runserver 0.0.0.0:8000
+adb reverse tcp:8000 tcp:8000 # tunnel for a mobile phone to be able to send and receive http requests
+```
+
+
 ## See API swagger in browser
 #### http://localhost:8000/swagger/
