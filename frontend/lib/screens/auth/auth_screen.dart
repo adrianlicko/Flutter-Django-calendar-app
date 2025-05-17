@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:frontend/components/custom_text_field.dart';
-import 'package:frontend/components/error_notifier.dart';
+import 'package:frontend/components/notifiers/error_notifier.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_preferences_model.dart';
@@ -120,7 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     firstName: registerFirstNameController.text,
                     lastName: registerLastNameController.text);
                 if (!success) {
-                  ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToRegister);
+                  ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToRegister);
                   setState(() {
                     isButtonLoading = false;
                   });
@@ -187,7 +187,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 bool success =
                     await authProvider.login(email: loginEmailController.text, password: loginPasswordController.text);
                 if (!success) {
-                  ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToLogin);
+                  ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToLogin);
                   setState(() {
                     isButtonLoading = false;
                   });

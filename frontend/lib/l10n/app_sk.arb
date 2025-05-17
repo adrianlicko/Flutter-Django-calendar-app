@@ -38,5 +38,17 @@
   "failedToUpdateUserSettings": "Nepodarilo sa aktualizovať používateľské nastavenia",
   "failedToGetSchedules": "Nepodarilo sa získať rozvrh hodín",
   "failedToAddSchedule": "Nepodarilo sa pridať rozvrh hodín",
-  "failedToDeleteSchedule": "Nepodarilo sa vymazať rozvrh hodín"
+  "failedToDeleteSchedule": "Nepodarilo sa vymazať rozvrh hodín",
+  "capture": "Odfotiť",
+  "captureAndCrop": "Odfotiť a orezať",
+  "imageWasSavedToGallery": "Fotografia bola uložená do galérie",
+  "show": "Zobraziť",
+  "failedToLoadDocuments": "Nepodarilo sa načítať dáta",
+  "failedToDeleteDocument": "Nepodarilo sa vymazať dokument",
+  "youHaveNoDocuments": "Nemáš žiadne naskenované dokumenty",
+  "scan": "Skenovať",
+  "gallery": "Galéria",
+  "scanner": "Skener",
+  "noCameraPermission": "Prístup ku kamere je povinný.",
+  "openSettings": "Otvoriť nastavenia"
 }
