@@ -6,9 +6,16 @@ class Notifier {
     required String message,
     required Color notifierColor,
     bool showOnTop = true,
-    Widget? trailingButton,
+    String? trailingButtonText,
+    Function()? onPressed,
   }) {
     final overlay = Overlay.of(context);
+    late OverlayEntry entry;
+
+    void closeNotification() {
+      entry.remove();
+    }
+
     final onTop = OverlayEntry(
       builder: (ctx) {
         return Positioned(
@@ -16,9 +23,10 @@ class Notifier {
           width: MediaQuery.of(ctx).size.width,
           child: _SlideFromTop(
             message: message,
-            onClose: () {},
+            onClose: closeNotification,
             backgroundColor: notifierColor,
-            trailingButton: trailingButton,
+            trailingButtonText: trailingButtonText,
+            onPressed: onPressed,
           ),
         );
       },
@@ -30,14 +38,16 @@ class Notifier {
           width: MediaQuery.of(ctx).size.width,
           child: _SlideFromTop(
             message: message,
-            onClose: () {},
+            onClose: closeNotification,
             backgroundColor: notifierColor,
-            trailingButton: trailingButton,
+            trailingButtonText: trailingButtonText,
+            onPressed: onPressed,
           ),
         );
       },
     );
-    final entry = showOnTop ? onTop : onBottom;
+
+    entry = showOnTop ? onTop : onBottom;
     overlay.insert(entry);
   }
 }
@@ -46,13 +56,15 @@ class _SlideFromTop extends StatefulWidget {
   final String message;
   final VoidCallback onClose;
   final Color backgroundColor;
-  final Widget? trailingButton;
+  final String? trailingButtonText;
+  final Function()? onPressed;
 
   const _SlideFromTop({
     required this.message,
     required this.onClose,
     required this.backgroundColor,
-    this.trailingButton,
+    this.trailingButtonText,
+    this.onPressed,
   });
 
   @override
@@ -78,6 +90,15 @@ class _SlideFromTopState extends State<_SlideFromTop> with SingleTickerProviderS
 
   @override
   Widget build(BuildContext context) {
+    final button = widget.trailingButtonText != null && widget.onPressed != null
+        ? TextButton(
+            onPressed: () {
+              widget.onPressed!.call();
+              _close();
+            },
+            child: Text(widget.trailingButtonText!),
+          )
+        : null;
     return SlideTransition(
       position: _slideAnimation,
       child: SafeArea(
@@ -91,12 +112,12 @@ class _SlideFromTopState extends State<_SlideFromTop> with SingleTickerProviderS
             color: widget.backgroundColor,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: widget.trailingButton == null
+              child: button == null
                   ? Text(widget.message, style: const TextStyle(color: Colors.white))
                   : Row(
                       children: [
                         Expanded(child: Text(widget.message, style: const TextStyle(color: Colors.white))),
-                        widget.trailingButton!,
+                        button,
                       ],
                     ),
             ),

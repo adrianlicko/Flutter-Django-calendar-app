@@ -4,10 +4,9 @@ import 'package:frontend/models/user_data_model.dart';
 import 'package:frontend/models/user_preferences_model.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 
 class AuthService {
-  final String _baseUrl = kIsWeb ? 'http://127.0.0.1:8000/api/' : 'http://10.0.2.2:8000/api/';
+  final String _baseUrl = 'http://localhost:8000/api/';
   String? _accessToken;
   String? _refreshToken;
 

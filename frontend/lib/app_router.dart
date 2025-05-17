@@ -1,6 +1,7 @@
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/screens/calendar_screen.dart';
-import 'package:frontend/screens/communication_with_native_screen.dart';
+import 'package:frontend/screens/edge_detection_camera_screen.dart';
+import 'package:frontend/screens/gallery_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/screens/todo/todo_detail_screen.dart';
@@ -14,9 +15,9 @@ GoRouter createRouter(AuthProvider authProvider) => GoRouter(
       refreshListenable: authProvider,
       redirect: (context, state) {
         final isLoggedIn = authProvider.isAuthenticated;
-        final isLoggingIn = state.matchedLocation == '/scan';
+        final isLoggingIn = state.matchedLocation == '/auth';
 
-        if (!isLoggedIn && !isLoggingIn) return '/scan';
+        if (!isLoggedIn && !isLoggingIn) return '/auth';
         if (isLoggedIn && isLoggingIn) return '/';
         return null;
       },
@@ -60,7 +61,12 @@ GoRouter createRouter(AuthProvider authProvider) => GoRouter(
         GoRoute(
           name: 'scan',
           path: '/scan',
-          builder: (context, state) => const CommunicationWithNativeScreen(),
+          builder: (context, state) => const EdgeDetectionCameraScreen(),
+        ),
+        GoRoute(
+          name: 'gallery',
+          path: '/gallery',
+          builder: (context, state) => const GalleryScreen(),
         ),
       ],
     );

@@ -9,18 +9,12 @@ class InfoNotifier {
     String? trailingButtonText,
     Function()? onPressed,
   }) {
-    final button = trailingButtonText != null && onPressed != null
-        ? TextButton(
-            onPressed: onPressed,
-            child: Text(trailingButtonText),
-          )
-        : null;
-
     Notifier.show(
       context: context,
       message: message,
       notifierColor: AppColors.NOTIFIER_INFO,
-      trailingButton: button,
+      trailingButtonText: trailingButtonText,
+      onPressed: onPressed,
     );
   }
 }
