@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:frontend/components/error_notifier.dart';
+import 'package:frontend/components/notifiers/error_notifier.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_data_model.dart';
 import 'package:frontend/models/user_preferences_model.dart';
@@ -34,7 +34,7 @@ class UserDataService {
     if (response != null && response.statusCode == 200) {
       return UserPreferencesModel.fromJson(jsonDecode(response.body)['preferences']);
     } else {
-      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToUpdateUserSettings);
+      ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToUpdateUserSettings);
       return null;
     }
   }
@@ -49,7 +49,7 @@ class UserDataService {
     if (response != null && response.statusCode == 200) {
       return UserDataModel.fromJson(jsonDecode(response.body));
     } else {
-      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToUpdateUserData);
+      ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToUpdateUserData);
       return null;
     }
   }

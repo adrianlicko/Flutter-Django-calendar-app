@@ -1,17 +1,43 @@
 import 'package:flutter/material.dart';
 
-class ErrorNotifier {
-  static void show(BuildContext context, String message) {
+class Notifier {
+  static void show({
+    required BuildContext context,
+    required String message,
+    required Color notifierColor,
+    bool showOnTop = true,
+    Widget? trailingButton,
+  }) {
     final overlay = Overlay.of(context);
-    final entry = OverlayEntry(
+    final onTop = OverlayEntry(
       builder: (ctx) {
         return Positioned(
           top: 0,
           width: MediaQuery.of(ctx).size.width,
-          child: _SlideFromTop(message: message, onClose: () {}),
+          child: _SlideFromTop(
+            message: message,
+            onClose: () {},
+            backgroundColor: notifierColor,
+            trailingButton: trailingButton,
+          ),
         );
       },
     );
+    final onBottom = OverlayEntry(
+      builder: (ctx) {
+        return Positioned(
+          bottom: 0,
+          width: MediaQuery.of(ctx).size.width,
+          child: _SlideFromTop(
+            message: message,
+            onClose: () {},
+            backgroundColor: notifierColor,
+            trailingButton: trailingButton,
+          ),
+        );
+      },
+    );
+    final entry = showOnTop ? onTop : onBottom;
     overlay.insert(entry);
   }
 }
@@ -19,7 +45,15 @@ class ErrorNotifier {
 class _SlideFromTop extends StatefulWidget {
   final String message;
   final VoidCallback onClose;
-  const _SlideFromTop({required this.message, required this.onClose});
+  final Color backgroundColor;
+  final Widget? trailingButton;
+
+  const _SlideFromTop({
+    required this.message,
+    required this.onClose,
+    required this.backgroundColor,
+    this.trailingButton,
+  });
 
   @override
   State<_SlideFromTop> createState() => _SlideFromTopState();
@@ -54,10 +88,17 @@ class _SlideFromTopState extends State<_SlideFromTop> with SingleTickerProviderS
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            color: const Color.fromRGBO(162, 29, 19, 1),
+            color: widget.backgroundColor,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(widget.message, style: const TextStyle(color: Colors.white)),
+              child: widget.trailingButton == null
+                  ? Text(widget.message, style: const TextStyle(color: Colors.white))
+                  : Row(
+                      children: [
+                        Expanded(child: Text(widget.message, style: const TextStyle(color: Colors.white))),
+                        widget.trailingButton!,
+                      ],
+                    ),
             ),
           ),
         ),
