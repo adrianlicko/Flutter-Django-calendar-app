@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/notifiers/error_notifier.dart';
+import 'package:frontend/components/notifiers/info_notifier.dart';
 import 'package:frontend/models/document_model.dart';
 import 'package:frontend/screens/loading_screen.dart';
 import 'package:frontend/services/document_storage_service.dart';
@@ -202,9 +204,24 @@ class _DocumentViewScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "${AppLocalizations.of(context)!.recognizedText}:",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${AppLocalizations.of(context)!.recognizedText}:",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.copy,
+                          color: Theme.of(context).appBarTheme.iconTheme!.color,
+                        ),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: document.text!));
+                          InfoNotifier.show(context: context, message: AppLocalizations.of(context)!.textWasCopied);
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8.0),
                   Text(document.text!),

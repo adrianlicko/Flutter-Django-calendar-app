@@ -54,5 +54,6 @@
   "noInternetConnection": "No internet connection",
   "cannotAccessBackend": "Cannot access backend",
   "badRequest": "Bad request",
-  "recognizedText": "Recognized text"
+  "recognizedText": "Recognized text",
+  "textWasCopied": "Text was copied to clipboard"
 }

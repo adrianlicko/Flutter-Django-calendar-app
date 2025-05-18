@@ -54,5 +54,6 @@
   "noInternetConnection": "Žiadne internetové pripojenie",
   "cannotAccessBackend": "Backend nie je prístupný",
   "badRequest": "Zlý request",
-  "recognizedText": "Rozpoznaný text"
+  "recognizedText": "Rozpoznaný text",
+  "textWasCopied": "Text bol skopírovaný do schránky"
 }
