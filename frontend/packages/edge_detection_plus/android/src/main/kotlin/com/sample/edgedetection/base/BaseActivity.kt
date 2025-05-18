@@ -33,17 +33,17 @@ abstract class BaseActivity : AppCompatActivity() {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             systemUiVisibility = systemUiVisibility or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             window.decorView.systemUiVisibility = systemUiVisibility
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             winParams.flags = winParams.flags or
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             winParams.flags = winParams.flags and
-                (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS).inv()
+                    (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS).inv()
             window.statusBarColor = statusBarColor
         }
 

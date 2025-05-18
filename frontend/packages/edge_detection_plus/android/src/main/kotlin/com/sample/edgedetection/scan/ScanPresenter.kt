@@ -1,4 +1,5 @@
 package com.sample.edgedetection.scan
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -102,36 +103,34 @@ class ScanPresenter constructor(
     }
 
     fun start() {
-        mCamera?.startPreview() ?:
-        Log.i(TAG, "mCamera startPreview")
+        mCamera?.startPreview() ?: Log.i(TAG, "mCamera startPreview")
     }
 
     fun stop() {
-        mCamera?.stopPreview() ?:
-        Log.i(TAG, "mCamera stopPreview")
+        mCamera?.stopPreview() ?: Log.i(TAG, "mCamera stopPreview")
     }
 
     fun canShut(): Boolean {
         return shutted
     }
 
-  fun shut(skipCrop: Boolean = false) {
-    if (isOpenRecently()) {
-        Log.i(TAG, "NOT Taking click")
-        return
-    }
-    busy = true
-    shutted = false
-    Log.i(TAG, "Starting autofocus before capture")
-    mCamera?.autoFocus { success, _ ->
-        if (success) {
-            mCamera?.takePicture(null, null, this)
-        } else {
-            busy = false
-            shutted = true
+    fun shut(skipCrop: Boolean = false) {
+        if (isOpenRecently()) {
+            Log.i(TAG, "NOT Taking click")
+            return
+        }
+        busy = true
+        shutted = false
+        Log.i(TAG, "Starting autofocus before capture")
+        mCamera?.autoFocus { success, _ ->
+            if (success) {
+                mCamera?.takePicture(null, null, this)
+            } else {
+                busy = false
+                shutted = true
+            }
         }
     }
-}
 
     fun toggleFlash() {
         try {
@@ -192,39 +191,49 @@ class ScanPresenter constructor(
         return mCameraLensFacing
     }
 
-    constructor(context: Context, iView: IScanView.Proxy, initialBundle: Bundle, embeddedSurfaceView: SurfaceView)
-    : this(context, iView, initialBundle) {
-    initEmbeddedCamera(embeddedSurfaceView.holder)
-}
+    constructor(
+        context: Context,
+        iView: IScanView.Proxy,
+        initialBundle: Bundle,
+        embeddedSurfaceView: SurfaceView
+    )
+            : this(context, iView, initialBundle) {
+        initEmbeddedCamera(embeddedSurfaceView.holder)
+    }
 
-private fun initCamera(holder: SurfaceHolder) {
-  try {
-      mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK)
-      // !
-      // mCamera?.setPreviewDisplay(holder)
-      // mCamera?.startPreview()
-  } catch (e: RuntimeException) {
-      e.printStackTrace()
-      Toast.makeText(context, "cannot open camera, please grant camera", Toast.LENGTH_SHORT).show()
-  }
-}
+    private fun initCamera(holder: SurfaceHolder) {
+        try {
+            mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK)
+        } catch (e: RuntimeException) {
+            e.printStackTrace()
+            Toast.makeText(context, "cannot open camera, please grant camera", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
 
     private fun initEmbeddedCamera(holder: SurfaceHolder) {
-      mSurfaceHolder.removeCallback(this)
-      mSurfaceHolder.addCallback(object : SurfaceHolder.Callback {
-          override fun surfaceCreated(holder: SurfaceHolder) {
-              initCamera(holder)
-          }
-          override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-              updateCamera()
-          }
-          override fun surfaceDestroyed(holder: SurfaceHolder) {
-              mCamera?.stopPreview()
-              mCamera?.release()
-              mCamera = null
-          }
-      })
-  }
+        mSurfaceHolder.removeCallback(this)
+        mSurfaceHolder.addCallback(object : SurfaceHolder.Callback {
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                initCamera(holder)
+            }
+
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+                updateCamera()
+            }
+
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                mCamera?.stopPreview()
+                mCamera?.release()
+                mCamera = null
+            }
+        })
+    }
 
     private fun initCamera() {
 
@@ -282,8 +291,10 @@ private fun initCamera(holder: SurfaceHolder) {
             param?.setPictureSize(pictureSize.width, pictureSize.height)
         }
         val pm = context.packageManager
-        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS) && mCamera!!.parameters.supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE))
-        {
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS) && mCamera!!.parameters.supportedFocusModes.contains(
+                Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
+            )
+        ) {
             param?.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
             Log.i(TAG, "enabling autofocus")
         } else {
@@ -310,7 +321,7 @@ private fun initCamera(holder: SurfaceHolder) {
             var useRatio = 0.0
             val widthRatio: Double = ScanConstants.MAX_SIZE.width / copiedSize.width
             val heightRatio: Double = ScanConstants.MAX_SIZE.height / copiedSize.height
-            useRatio = if(widthRatio > heightRatio)  widthRatio else heightRatio
+            useRatio = if (widthRatio > heightRatio) widthRatio else heightRatio
             val resizedImage = Mat()
             val newSize = Size(copiedSize.width * useRatio, copiedSize.height * useRatio)
             Imgproc.resize(copied, resizedImage, newSize)
@@ -320,142 +331,150 @@ private fun initCamera(holder: SurfaceHolder) {
         }
     }
 
-  fun deskewPicture(picture: Mat, pts: List<CvPoint>): Mat {
-    val tl = pts[0]
-    val tr = pts[1]
-    val br = pts[2]
-    val bl = pts[3]
+    fun deskewPicture(picture: Mat, pts: List<CvPoint>): Mat {
+        val tl = pts[0]
+        val tr = pts[1]
+        val br = pts[2]
+        val bl = pts[3]
 
-    val widthA = sqrt((br.x - bl.x).pow(2.0) + (br.y - bl.y).pow(2.0))
-    val widthB = sqrt((tr.x - tl.x).pow(2.0) + (tr.y - tl.y).pow(2.0))
-    val dw = max(widthA, widthB)
-    val maxWidth = dw.toInt()
+        val widthA = sqrt((br.x - bl.x).pow(2.0) + (br.y - bl.y).pow(2.0))
+        val widthB = sqrt((tr.x - tl.x).pow(2.0) + (tr.y - tl.y).pow(2.0))
+        val dw = max(widthA, widthB)
+        val maxWidth = dw.toInt()
 
-    val heightA = sqrt((tr.x - br.x).pow(2.0) + (tr.y - br.y).pow(2.0))
-    val heightB = sqrt((tl.x - bl.x).pow(2.0) + (tl.y - bl.y).pow(2.0))
-    val dh = max(heightA, heightB)
-    val maxHeight = dh.toInt()
+        val heightA = sqrt((tr.x - br.x).pow(2.0) + (tr.y - br.y).pow(2.0))
+        val heightB = sqrt((tl.x - bl.x).pow(2.0) + (tl.y - bl.y).pow(2.0))
+        val dh = max(heightA, heightB)
+        val maxHeight = dh.toInt()
 
-    val centerX = (tl.x + tr.x + br.x + bl.x) / 4.0
-    val centerY = (tl.y + tr.y + br.y + bl.y) / 4.0
+        val centerX = (tl.x + tr.x + br.x + bl.x) / 4.0
+        val centerY = (tl.y + tr.y + br.y + bl.y) / 4.0
 
-    val dstPts = MatOfPoint2f(
-        CvPoint(centerX - maxWidth / 2.0, centerY - maxHeight / 2.0),
-        CvPoint(centerX + maxWidth / 2.0, centerY - maxHeight / 2.0),
-        CvPoint(centerX + maxWidth / 2.0, centerY + maxHeight / 2.0),
-        CvPoint(centerX - maxWidth / 2.0, centerY + maxHeight / 2.0)
-    )
+        val dstPts = MatOfPoint2f(
+            CvPoint(centerX - maxWidth / 2.0, centerY - maxHeight / 2.0),
+            CvPoint(centerX + maxWidth / 2.0, centerY - maxHeight / 2.0),
+            CvPoint(centerX + maxWidth / 2.0, centerY + maxHeight / 2.0),
+            CvPoint(centerX - maxWidth / 2.0, centerY + maxHeight / 2.0)
+        )
 
-    val srcPts = MatOfPoint2f(tl, tr, br, bl)
+        val srcPts = MatOfPoint2f(tl, tr, br, bl)
 
-    val m = CvImgproc.getPerspectiveTransform(srcPts, dstPts)
+        val m = CvImgproc.getPerspectiveTransform(srcPts, dstPts)
 
-    val finalCorners = MatOfPoint2f()
-    Core.perspectiveTransform(srcPts, finalCorners, m)
-    documentPoints = finalCorners
+        val finalCorners = MatOfPoint2f()
+        Core.perspectiveTransform(srcPts, finalCorners, m)
+        documentPoints = finalCorners
 
-    val warped = Mat()
-    CvImgproc.warpPerspective(picture, warped, m, picture.size())
-    m.release()
+        val warped = Mat()
+        CvImgproc.warpPerspective(picture, warped, m, picture.size())
+        m.release()
 
-    return warped
-}
-
-fun cropDocument(mat: Mat, pts: List<CvPoint>): Mat {
-  val tl = pts[0]
-  val tr = pts[1]
-  val br = pts[2]
-  val bl = pts[3]
-
-  val widthA = sqrt((br.x - bl.x).pow(2.0) + (br.y - bl.y).pow(2.0))
-  val widthB = sqrt((tr.x - tl.x).pow(2.0) + (tr.y - tl.y).pow(2.0))
-  val maxWidth = max(widthA, widthB).toInt()
-
-  val heightA = sqrt((tr.x - br.x).pow(2.0) + (tr.y - br.y).pow(2.0))
-  val heightB = sqrt((tl.x - bl.x).pow(2.0) + (tl.y - bl.y).pow(2.0))
-  val maxHeight = max(heightA, heightB).toInt()
-
-  val srcPts = MatOfPoint2f(tl, tr, br, bl)
-  val dstPts = MatOfPoint2f(
-      CvPoint(0.0, 0.0),
-      CvPoint(maxWidth.toDouble(), 0.0),
-      CvPoint(maxWidth.toDouble(), maxHeight.toDouble()),
-      CvPoint(0.0, maxHeight.toDouble())
-  )
-
-  val m = CvImgproc.getPerspectiveTransform(srcPts, dstPts)
-  val cropped = Mat()
-  CvImgproc.warpPerspective(mat, cropped, m, Size(maxWidth.toDouble(), maxHeight.toDouble()))
-  m.release()
-
-  documentPoints = dstPts;  
-
-  return cropped
-}
-
-fun detectEdge(pict: Mat? = null, initialBundleParam: Bundle? = null, crop: Boolean = false): Map<String, Any?> {
-  SourceManager.pic = null
-  SourceManager.corners = null
-  if (pict != null) {
-      picture = pict.clone()
-  }
-  val pic = picture ?: return emptyMap()
-  val resizedMat = matrixResizer(pic)
-  SourceManager.corners = processPicture(resizedMat)
-  Imgproc.cvtColor(resizedMat, resizedMat, Imgproc.COLOR_RGB2BGRA)
-  SourceManager.pic = resizedMat
-
-  val fullPicPath = initialBundleParam?.getString(EdgeDetectionHandler.SAVE_TO) ?: initialBundle.getString(EdgeDetectionHandler.SAVE_TO)
-  val file = File(fullPicPath ?: return emptyMap())
-  if (file.exists()) {
-      file.delete()
-  }
-  val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-  mediaScanIntent.data = Uri.fromFile(file)
-  context.sendBroadcast(mediaScanIntent)
-
-  val cornersList = SourceManager.corners?.corners?.filterNotNull() ?: return emptyMap()
-  if (!crop && cornersList.size == 4) {
-    documentPoints = MatOfPoint2f(
-        cornersList[0],
-        cornersList[1],
-        cornersList[2],
-        cornersList[3]
-    )
-  } 
-  val resultMat = if (crop) cropDocument(pic, cornersList) else pic
-  val success = Imgcodecs.imwrite(file.absolutePath, resultMat)
-  if (success) {
-      val context = this.context
-      val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-      mediaScanIntent.data = Uri.fromFile(file)
-      context.sendBroadcast(mediaScanIntent)
-  }
-
-  val corners = documentPoints?.toList()?.map { listOf(it.x, it.y) } ?: emptyList<List<Double>>()
-  val width = resultMat.size().width.toDouble()
-  val height = resultMat.size().height.toDouble()
-
-  return mapOf(
-      "success" to true,
-      "corners" to corners,
-      "width" to width,
-      "height" to height,
-      "imagePath" to fullPicPath
-  )
-}
-
-  fun releaseResources() {
-    synchronized(this) {
-        mCamera?.stopPreview()
-        mCamera?.setPreviewCallback(null)
-        mCamera?.release()
-        mCamera = null
-        picture?.release()
-        picture = null
-        documentPoints = null
+        return warped
     }
-}
+
+    fun cropDocument(mat: Mat, pts: List<CvPoint>): Mat {
+        val tl = pts[0]
+        val tr = pts[1]
+        val br = pts[2]
+        val bl = pts[3]
+
+        val widthA = sqrt((br.x - bl.x).pow(2.0) + (br.y - bl.y).pow(2.0))
+        val widthB = sqrt((tr.x - tl.x).pow(2.0) + (tr.y - tl.y).pow(2.0))
+        val maxWidth = max(widthA, widthB).toInt()
+
+        val heightA = sqrt((tr.x - br.x).pow(2.0) + (tr.y - br.y).pow(2.0))
+        val heightB = sqrt((tl.x - bl.x).pow(2.0) + (tl.y - bl.y).pow(2.0))
+        val maxHeight = max(heightA, heightB).toInt()
+
+        val srcPts = MatOfPoint2f(tl, tr, br, bl)
+        val dstPts = MatOfPoint2f(
+            CvPoint(0.0, 0.0),
+            CvPoint(maxWidth.toDouble(), 0.0),
+            CvPoint(maxWidth.toDouble(), maxHeight.toDouble()),
+            CvPoint(0.0, maxHeight.toDouble())
+        )
+
+        val m = CvImgproc.getPerspectiveTransform(srcPts, dstPts)
+        val cropped = Mat()
+        CvImgproc.warpPerspective(mat, cropped, m, Size(maxWidth.toDouble(), maxHeight.toDouble()))
+        m.release()
+
+        documentPoints = dstPts;
+
+        return cropped
+    }
+
+    fun detectEdge(
+        pict: Mat? = null,
+        initialBundleParam: Bundle? = null,
+        crop: Boolean = false
+    ): Map<String, Any?> {
+        SourceManager.pic = null
+        SourceManager.corners = null
+        if (pict != null) {
+            picture = pict.clone()
+        }
+        val pic = picture ?: return emptyMap()
+        val resizedMat = matrixResizer(pic)
+        SourceManager.corners = processPicture(resizedMat)
+        Imgproc.cvtColor(resizedMat, resizedMat, Imgproc.COLOR_RGB2BGRA)
+        SourceManager.pic = resizedMat
+
+        val fullPicPath =
+            initialBundleParam?.getString(EdgeDetectionHandler.SAVE_TO) ?: initialBundle.getString(
+                EdgeDetectionHandler.SAVE_TO
+            )
+        val file = File(fullPicPath ?: return emptyMap())
+        if (file.exists()) {
+            file.delete()
+        }
+        val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        mediaScanIntent.data = Uri.fromFile(file)
+        context.sendBroadcast(mediaScanIntent)
+
+        val cornersList = SourceManager.corners?.corners?.filterNotNull() ?: return emptyMap()
+        if (!crop && cornersList.size == 4) {
+            documentPoints = MatOfPoint2f(
+                cornersList[0],
+                cornersList[1],
+                cornersList[2],
+                cornersList[3]
+            )
+        }
+        val resultMat = if (crop) cropDocument(pic, cornersList) else pic
+        val success = Imgcodecs.imwrite(file.absolutePath, resultMat)
+        if (success) {
+            val context = this.context
+            val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+            mediaScanIntent.data = Uri.fromFile(file)
+            context.sendBroadcast(mediaScanIntent)
+        }
+
+        val corners =
+            documentPoints?.toList()?.map { listOf(it.x, it.y) } ?: emptyList<List<Double>>()
+        val width = resultMat.size().width.toDouble()
+        val height = resultMat.size().height.toDouble()
+
+        return mapOf(
+            "success" to true,
+            "corners" to corners,
+            "width" to width,
+            "height" to height,
+            "imagePath" to fullPicPath
+        )
+    }
+
+    fun releaseResources() {
+        synchronized(this) {
+            mCamera?.stopPreview()
+            mCamera?.setPreviewCallback(null)
+            mCamera?.release()
+            mCamera = null
+            picture?.release()
+            picture = null
+            documentPoints = null
+        }
+    }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
         initCamera()
@@ -476,20 +495,20 @@ fun detectEdge(pict: Mat? = null, initialBundleParam: Bundle? = null, crop: Bool
 
     override fun onPictureTaken(p0: ByteArray?, p1: Camera?) {}
 
-  private fun analyzeText(photo: Bitmap, qrValue: String) {
-    val image = InputImage.fromBitmap(photo, 0)
-    val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    textRecognizer.process(image)
-    .addOnSuccessListener { textResult ->
-        val recognizedText = textResult.text
-        val recognizedTextLines = recognizedText.split("\n")
+    private fun analyzeText(photo: Bitmap, qrValue: String) {
+        val image = InputImage.fromBitmap(photo, 0)
+        val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        textRecognizer.process(image)
+            .addOnSuccessListener { textResult ->
+                val recognizedText = textResult.text
+                val recognizedTextLines = recognizedText.split("\n")
+            }
+            .addOnFailureListener { e ->
+                println("Text recognition error: ${e.message}")
+            }
     }
-    .addOnFailureListener { e ->
-        println("Text recognition error: ${e.message}")
-    }
-}
 
-override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
+    override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
         if (busy) {
             return
         }
@@ -518,7 +537,8 @@ override fun onPreviewFrame(p0: ByteArray?, p1: Camera?) {
                     println(initialBundle.getString(EdgeDetectionHandler.SAVE_TO))
                     picture = img
 
-                    val qrBitmap = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888)
+                    val qrBitmap =
+                        Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888)
                     Utils.matToBitmap(img, qrBitmap)
 
                     val detectedCorners = processPicture(img)

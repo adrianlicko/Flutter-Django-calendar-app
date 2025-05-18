@@ -43,32 +43,32 @@ class EdgeDetectionPlugin : FlutterPlugin, ActivityAware {
     private var handler: EdgeDetectionHandler? = null
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
-      handler = EdgeDetectionHandler()
-      val channel = MethodChannel(binding.binaryMessenger, "edge_detection")
-      channel.setMethodCallHandler(handler)
-      
-      binding.platformViewRegistry.registerViewFactory(
-          "scanner_view", 
-          ScannerViewFactory(binding.binaryMessenger)
-      )
+        handler = EdgeDetectionHandler()
+        val channel = MethodChannel(binding.binaryMessenger, "edge_detection")
+        channel.setMethodCallHandler(handler)
 
-      startEventChannel(binding.binaryMessenger)
-  }
+        binding.platformViewRegistry.registerViewFactory(
+            "scanner_view",
+            ScannerViewFactory(binding.binaryMessenger)
+        )
 
-  private fun startEventChannel(messenger: BinaryMessenger) {
-    val eventChannel = EventChannel(messenger, "scanner_events_0")
-    eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
-        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            ScannerView.eventSink = events
-            Log.d("EdgeDetectionPlugin", "EventChannel listener set")
-        }
+        startEventChannel(binding.binaryMessenger)
+    }
 
-        override fun onCancel(arguments: Any?) {
-            ScannerView.eventSink = null
-            Log.d("EdgeDetectionPlugin", "EventChannel listener cancelled")
-        }
-    })
-}
+    private fun startEventChannel(messenger: BinaryMessenger) {
+        val eventChannel = EventChannel(messenger, "scanner_events_0")
+        eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                ScannerView.eventSink = events
+                Log.d("EdgeDetectionPlugin", "EventChannel listener set")
+            }
+
+            override fun onCancel(arguments: Any?) {
+                ScannerView.eventSink = null
+                Log.d("EdgeDetectionPlugin", "EventChannel listener cancelled")
+            }
+        })
+    }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {}
 
@@ -81,10 +81,11 @@ class EdgeDetectionPlugin : FlutterPlugin, ActivityAware {
     override fun onDetachedFromActivity() {}
 }
 
-class ScannerViewFactory(private val messenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
-  override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
-      return ScannerView(context, viewId, messenger)
-  }
+class ScannerViewFactory(private val messenger: BinaryMessenger) :
+    PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+    override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
+        return ScannerView(context, viewId, messenger)
+    }
 }
 
 class ScannerView(
@@ -101,11 +102,11 @@ class ScannerView(
     private val initialBundle = Bundle()
 
     private fun checkCameraPermission(context: Context): Boolean {
-      return ContextCompat.checkSelfPermission(
-          context, 
-          Manifest.permission.CAMERA
-      ) == PackageManager.PERMISSION_GRANTED
-  }
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
     private fun requestCameraPermission(activity: Activity?) {
         activity?.let {
@@ -118,95 +119,110 @@ class ScannerView(
     }
 
     init {
-      eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
-        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            eventSink = events
-            Log.d("ScannerView", "EventChannel listener set") 
-        }
+        eventChannel.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                eventSink = events
+                Log.d("ScannerView", "EventChannel listener set")
+            }
 
-        override fun onCancel(arguments: Any?) {
-            eventSink = null
-            Log.d("ScannerView", "EventChannel listener cancelled")
-        }
-    })
+            override fun onCancel(arguments: Any?) {
+                eventSink = null
+                Log.d("ScannerView", "EventChannel listener cancelled")
+            }
+        })
 
-    methodChannel.setMethodCallHandler { call, result ->
-        when (call.method) {
-            "start_scan" -> {
-                  presenter.start()
-            }
-            "dispose_scanner" -> {
-                dispose()
-                result.success(null)
-            }
-            "set_flash" -> {
-                val on = call.argument<Boolean>("on") ?: false
-                presenter.setFlash(on)
-                result.success(null)
-            }
-            "detect_edge" -> {
-                try {
-                    val imagePath = call.argument<String>("imagePath")
-                    if (imagePath == null) {
-                        result.error("NULL_PATH", "Image path cannot be null", null)
-                        return@setMethodCallHandler
-                    }
-                    initialBundle.putString(EdgeDetectionHandler.SAVE_TO, imagePath)
-                    val edgeData = detectEdge(initialBundle, crop = false)
-                    result.success(edgeData)
-                } catch (e: Exception) {
-                  result.error("EDGE_DETECTION_ERROR", e.message, null)
+        methodChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "start_scan" -> {
+                    presenter.start()
                 }
-            }
-            "detect_edge_with_crop" -> {
-                try {
-                    val imagePath = call.argument<String>("imagePath")
-                    if (imagePath == null) {
-                        result.error("NULL_PATH", "Image path cannot be null", null)
-                        return@setMethodCallHandler
-                    }
-                    initialBundle.putString(EdgeDetectionHandler.SAVE_TO, imagePath)
-                    val edgeData = detectEdge(initialBundle, crop = true)
-                    result.success(edgeData)
-                } catch (e: Exception) {
-                    result.error("EDGE_DETECTION_ERROR", e.message, null)
+
+                "dispose_scanner" -> {
+                    dispose()
+                    result.success(null)
                 }
+
+                "set_flash" -> {
+                    val on = call.argument<Boolean>("on") ?: false
+                    presenter.setFlash(on)
+                    result.success(null)
+                }
+
+                "detect_edge" -> {
+                    try {
+                        val imagePath = call.argument<String>("imagePath")
+                        if (imagePath == null) {
+                            result.error("NULL_PATH", "Image path cannot be null", null)
+                            return@setMethodCallHandler
+                        }
+                        initialBundle.putString(EdgeDetectionHandler.SAVE_TO, imagePath)
+                        val edgeData = detectEdge(initialBundle, crop = false)
+                        result.success(edgeData)
+                    } catch (e: Exception) {
+                        result.error("EDGE_DETECTION_ERROR", e.message, null)
+                    }
+                }
+
+                "detect_edge_with_crop" -> {
+                    try {
+                        val imagePath = call.argument<String>("imagePath")
+                        if (imagePath == null) {
+                            result.error("NULL_PATH", "Image path cannot be null", null)
+                            return@setMethodCallHandler
+                        }
+                        initialBundle.putString(EdgeDetectionHandler.SAVE_TO, imagePath)
+                        val edgeData = detectEdge(initialBundle, crop = true)
+                        result.success(edgeData)
+                    } catch (e: Exception) {
+                        result.error("EDGE_DETECTION_ERROR", e.message, null)
+                    }
+                }
+
+                else -> result.notImplemented()
             }
-            else -> result.notImplemented()
         }
-    }
 
         if (!OpenCVLoader.initDebug()) {
             Log.e("OpenCV", "OpenCV initialization failed")
         }
 
-        containerView.addView(surfaceView, FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        ))
-        
-        containerView.addView(paperRect, FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        ))
+        containerView.addView(
+            surfaceView, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+
+        containerView.addView(
+            paperRect, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
 
         presenter = ScanPresenter(
-          context,
-          object : IScanView.Proxy {
-              override fun getSurfaceView() = surfaceView
-              override fun getCurrentDisplay() = if (context is Activity) {
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                      context.display
-                  } else {
-                      context.windowManager.defaultDisplay
-                  }
-              } else null
-              override fun getPaperRect() = paperRect
-              override fun exit() {}
-              override fun onDocumentDetected(corners: List<CvPoint>, width: Double, height: Double) {}
-          },
-          initialBundle
-      )
+            context,
+            object : IScanView.Proxy {
+                override fun getSurfaceView() = surfaceView
+                override fun getCurrentDisplay() = if (context is Activity) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        context.display
+                    } else {
+                        context.windowManager.defaultDisplay
+                    }
+                } else null
+
+                override fun getPaperRect() = paperRect
+                override fun exit() {}
+                override fun onDocumentDetected(
+                    corners: List<CvPoint>,
+                    width: Double,
+                    height: Double
+                ) {
+                }
+            },
+            initialBundle
+        )
     }
 
     override fun getView(): View = containerView
@@ -216,11 +232,11 @@ class ScannerView(
     }
 
     fun detectEdge(initialBundle: Bundle, crop: Boolean = false): Map<String, Any?> {
-      return presenter.detectEdge(null, initialBundle, crop)
-  }
+        return presenter.detectEdge(null, initialBundle, crop)
+    }
 
     companion object {
-      var eventSink: EventChannel.EventSink? = null
+        var eventSink: EventChannel.EventSink? = null
     }
 }
 
@@ -257,12 +273,15 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
                 )
                 return
             }
+
             call.method.equals("edge_detect") -> {
                 openCameraActivity(call, result)
             }
+
             call.method.equals("edge_detect_gallery") -> {
                 openGalleryActivity(call, result)
             }
+
             else -> {
                 result.notImplemented()
             }
@@ -279,11 +298,16 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
                 Activity.RESULT_OK -> {
                     finishWithSuccess(true, data)
                 }
+
                 Activity.RESULT_CANCELED -> {
                     finishWithSuccess(false, data)
                 }
+
                 ERROR_CODE -> {
-                    finishWithError(ERROR_CODE.toString(), data?.getStringExtra("RESULT") ?: "ERROR")
+                    finishWithError(
+                        ERROR_CODE.toString(),
+                        data?.getStringExtra("RESULT") ?: "ERROR"
+                    )
                 }
             }
             return true
@@ -297,7 +321,8 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
             return
         }
 
-        val initialIntent =Intent(Intent(getActivity()?.applicationContext, ScanActivity::class.java))
+        val initialIntent =
+            Intent(Intent(getActivity()?.applicationContext, ScanActivity::class.java))
 
         val bundle = Bundle()
         bundle.putString(SAVE_TO, call.argument<String>(SAVE_TO) as String)
@@ -315,7 +340,8 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
             finishWithAlreadyActiveError()
             return
         }
-        val initialIntent = Intent(Intent(getActivity()?.applicationContext, ScanActivity::class.java))
+        val initialIntent =
+            Intent(Intent(getActivity()?.applicationContext, ScanActivity::class.java))
 
         val bundle = Bundle()
         bundle.putString(SAVE_TO, call.argument<String>(SAVE_TO) as String)
@@ -350,27 +376,27 @@ class EdgeDetectionHandler : MethodCallHandler, PluginRegistry.ActivityResultLis
     }
 
     private fun bundleToMap(bundle: Bundle): Map<String, Any?> {
-      val map = HashMap<String, Any?>()
-      for (key in bundle.keySet()) {
-          val value = bundle.get(key)
-          map[key] = if (value is Bundle) {
-              bundleToMap(value)
-          } else {
-              value
-          }
-      }
-      return map
-  }
-  
-  private fun finishWithSuccess(res: Boolean, data: Intent?) {
-    println("finishWithSuccess")
-    val extras = data?.extras?.let { bundleToMap(it) } ?: emptyMap<String, Any?>()
-    val resultMap = HashMap<String, Any?>()
-    resultMap["success"] = res
-    resultMap.putAll(extras)
-    result?.success(resultMap)
-    clearMethodCallAndResult()
-}
+        val map = HashMap<String, Any?>()
+        for (key in bundle.keySet()) {
+            val value = bundle.get(key)
+            map[key] = if (value is Bundle) {
+                bundleToMap(value)
+            } else {
+                value
+            }
+        }
+        return map
+    }
+
+    private fun finishWithSuccess(res: Boolean, data: Intent?) {
+        println("finishWithSuccess")
+        val extras = data?.extras?.let { bundleToMap(it) } ?: emptyMap<String, Any?>()
+        val resultMap = HashMap<String, Any?>()
+        resultMap["success"] = res
+        resultMap.putAll(extras)
+        result?.success(resultMap)
+        clearMethodCallAndResult()
+    }
 
     private fun clearMethodCallAndResult() {
         methodCall = null
