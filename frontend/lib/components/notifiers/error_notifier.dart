@@ -6,7 +6,13 @@ class ErrorNotifier {
   static void show({
     required BuildContext context,
     required String message,
+    bool showOnTop = true,
   }) {
-    Notifier.show(context: context, message: message, notifierColor: AppColors.NOTIFIER_ERROR);
+    Notifier.show(
+      context: context,
+      message: message,
+      notifierColor: AppColors.NOTIFIER_ERROR,
+      showOnTop: showOnTop,
+    );
   }
 }

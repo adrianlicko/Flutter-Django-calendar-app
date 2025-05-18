@@ -213,6 +213,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        showAppBarActions: false,
         body: Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),

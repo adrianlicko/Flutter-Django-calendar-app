@@ -50,5 +50,8 @@
   "gallery": "Galéria",
   "scanner": "Skener",
   "noCameraPermission": "Prístup ku kamere je povinný.",
-  "openSettings": "Otvoriť nastavenia"
+  "openSettings": "Otvoriť nastavenia",
+  "noInternetConnection": "Žiadne internetové pripojenie",
+  "cannotAccessBackend": "Backend nie je prístupný",
+  "badRequest": "Zlý request"
 }

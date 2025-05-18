@@ -8,6 +8,7 @@ import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/app_router.dart';
 import 'package:frontend/screens/loading_screen.dart';
+import 'package:frontend/services/connectivity_service.dart';
 import 'package:frontend/services/user_data_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => locator<ConnectivityService>()),
       ],
       child: const MyApp(),
     ),
@@ -44,19 +46,22 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _tryAutoLogin();
-    router = createRouter(authProvider);
+    _tryAutoLoginAndSetupRouter();
   }
 
-  Future<void> _tryAutoLogin() async {
-    final success = await authProvider.tryAutoLogin();
-    setState(() {
-      isLoading = false;
-    });
+  Future<void> _tryAutoLoginAndSetupRouter() async {
+    await authProvider.tryAutoLogin();
 
-    if (success) {
-      user = authProvider.user!;
-      locator<UserDataService>().trySetPreferredPreferences(context, userData: user!);
+    router = createRouter(authProvider);
+
+    if (authProvider.isAuthenticated && authProvider.user != null) {
+      locator<UserDataService>().trySetPreferredPreferences(context, userData: authProvider.user!);
+    }
+
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
