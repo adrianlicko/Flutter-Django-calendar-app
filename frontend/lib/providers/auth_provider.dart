@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_data_model.dart';
 import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/services/connectivity_service.dart';
+import 'package:frontend/services/local_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = locator<AuthService>();
+  final LocalStorageService _localStorageService = locator<LocalStorageService>();
+  final ConnectivityService _connectivityService = locator<ConnectivityService>();
   bool _isLoading = false;
+  bool _isAuthenticated = false;
 
   bool get isAuthenticated => _authService.accessToken != null;
   bool get isLoading => _isLoading;
@@ -47,51 +52,53 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final tokens = await _authService.login(email: email, password: password);
-    if (tokens != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('accessToken', tokens['access']);
-      await prefs.setString('refreshToken', tokens['refresh']);
-      _authService.setTokens(access: tokens['access'], refresh: tokens['refresh']);
+    final loginData = await _authService.login(email: email, password: password);
+    if (loginData != null) {
       _user = await _authService.getCurrentUser();
-      _isLoading = false;
-      notifyListeners();
-      return true;
+      _isAuthenticated = _user != null;
+    } else {
+      _isAuthenticated = false;
+      _user = null;
     }
 
     _isLoading = false;
     notifyListeners();
-    return false;
+    return _isAuthenticated;
   }
 
   Future<void> logout() async {
     await _authService.logout();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('accessToken');
-    await prefs.remove('refreshToken');
     _user = null;
+    _isAuthenticated = false;
     notifyListeners();
   }
 
   Future<bool> tryAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    final access = prefs.getString('accessToken');
-    final refresh = prefs.getString('refreshToken');
-
-    if (access != null && refresh != null) {
-      _authService.setTokens(access: access, refresh: refresh);
-
-      bool refreshed = await refreshToken();
-      if (!refreshed) {
-        await logout();
-        return false;
-      }
-
-      _user = await _authService.getCurrentUser();
+    final tokens = await _localStorageService.getAuthTokens();
+    if (tokens == null) {
+      _isAuthenticated = false;
       notifyListeners();
-      return true;
+      return false;
     }
-    return false;
+
+    _authService.setTokens(access: tokens['access']!, refresh: tokens['refresh']!);
+
+    if (await _connectivityService.checkConnectivityToBackend()) {
+      if (await _authService.refreshAccessToken()) {
+        _user = await _authService.getCurrentUser();
+        _isAuthenticated = _user != null;
+      } else {
+        _isAuthenticated = false;
+        _user = null;
+        await _localStorageService.clearAuthTokens();
+      }
+    } else {
+      _user = await _localStorageService.getUserData();
+      _isAuthenticated = _user != null;
+    }
+
+    notifyListeners();
+    return _isAuthenticated;
   }
 
   Future<bool> refreshToken() async {

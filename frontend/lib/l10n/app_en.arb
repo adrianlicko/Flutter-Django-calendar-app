@@ -50,5 +50,10 @@
   "gallery": "Gallery",
   "scanner": "Scanner",
   "noCameraPermission": "Camera permission is required.",
-  "openSettings": "Open Settings"
+  "openSettings": "Open Settings",
+  "noInternetConnection": "No internet connection",
+  "cannotAccessBackend": "Cannot access backend",
+  "badRequest": "Bad request",
+  "recognizedText": "Recognized text",
+  "textWasCopied": "Text was copied to clipboard"
 }

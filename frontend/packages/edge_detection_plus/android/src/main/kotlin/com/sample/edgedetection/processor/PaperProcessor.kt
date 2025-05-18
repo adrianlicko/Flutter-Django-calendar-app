@@ -129,7 +129,7 @@ private fun getCorners(contours: List<MatOfPoint>, size: Size): Corners? {
             val convex = MatOfPoint()
             approx.convertTo(convex, CvType.CV_32S)
             // select biggest 4 angles polygon
-            if (points.size == 4 && Imgproc.isContourConvex(convex)) { 
+            if (points.size == 4 && Imgproc.isContourConvex(convex)) {
                 val foundPoints = sortPoints(points)
                 return Corners(foundPoints, size)
             }
@@ -140,6 +140,7 @@ private fun getCorners(contours: List<MatOfPoint>, size: Size): Corners? {
 
     return null
 }
+
 private fun sortPoints(points: List<Point>): List<Point> {
     val p0 = points.minByOrNull { point -> point.x + point.y } ?: Point()
     val p1 = points.minByOrNull { point: Point -> point.y - point.x } ?: Point()

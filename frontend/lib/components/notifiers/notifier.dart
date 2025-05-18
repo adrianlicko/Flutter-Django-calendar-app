@@ -21,12 +21,13 @@ class Notifier {
         return Positioned(
           top: 0,
           width: MediaQuery.of(ctx).size.width,
-          child: _SlideFromTop(
+          child: _Slide(
             message: message,
             onClose: closeNotification,
             backgroundColor: notifierColor,
             trailingButtonText: trailingButtonText,
             onPressed: onPressed,
+            slideFromTop: true,
           ),
         );
       },
@@ -36,12 +37,13 @@ class Notifier {
         return Positioned(
           bottom: 0,
           width: MediaQuery.of(ctx).size.width,
-          child: _SlideFromTop(
+          child: _Slide(
             message: message,
             onClose: closeNotification,
             backgroundColor: notifierColor,
             trailingButtonText: trailingButtonText,
             onPressed: onPressed,
+            slideFromTop: false,
           ),
         );
       },
@@ -52,26 +54,28 @@ class Notifier {
   }
 }
 
-class _SlideFromTop extends StatefulWidget {
+class _Slide extends StatefulWidget {
   final String message;
   final VoidCallback onClose;
   final Color backgroundColor;
   final String? trailingButtonText;
   final Function()? onPressed;
+  final bool slideFromTop;
 
-  const _SlideFromTop({
+  const _Slide({
     required this.message,
     required this.onClose,
     required this.backgroundColor,
     this.trailingButtonText,
     this.onPressed,
+    required this.slideFromTop,
   });
 
   @override
-  State<_SlideFromTop> createState() => _SlideFromTopState();
+  State<_Slide> createState() => _SlideState();
 }
 
-class _SlideFromTopState extends State<_SlideFromTop> with SingleTickerProviderStateMixin {
+class _SlideState extends State<_Slide> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
 
@@ -79,7 +83,10 @@ class _SlideFromTopState extends State<_SlideFromTop> with SingleTickerProviderS
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
-    _slideAnimation = Tween(begin: const Offset(0, -1), end: Offset.zero).animate(_controller);
+    _slideAnimation = widget.slideFromTop
+        ? Tween(begin: const Offset(0, -1), end: Offset.zero).animate(_controller)
+        : Tween(begin: const Offset(0, 1), end: Offset.zero)
+            .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
     Future.delayed(const Duration(seconds: 4), _close);
   }

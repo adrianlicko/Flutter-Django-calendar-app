@@ -7,11 +7,13 @@ import 'package:frontend/models/user_preferences_model.dart';
 import 'package:frontend/providers/locale_provider.dart';
 import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/services/local_storage_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UserDataService {
   final AuthService _authService = locator<AuthService>();
+  final LocalStorageService _localStorageService = locator<LocalStorageService>();
 
   void trySetPreferredPreferences(BuildContext context, {required UserDataModel userData}) {
     final userPreferences = userData.preferences;
@@ -47,7 +49,9 @@ class UserDataService {
     );
 
     if (response != null && response.statusCode == 200) {
-      return UserDataModel.fromJson(jsonDecode(response.body));
+      final userData = UserDataModel.fromJson(jsonDecode(response.body));
+      await _localStorageService.saveUserData(userData);
+      return userData;
     } else {
       ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToUpdateUserData);
       return null;

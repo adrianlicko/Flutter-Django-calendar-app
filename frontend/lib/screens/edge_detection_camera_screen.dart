@@ -20,7 +20,8 @@ enum ScannerEvents {
   DETECT_EDGE_WITH_CROP("detect_edge_with_crop"),
   DETECT_EDGE("detect_edge"),
   IMAGE_PATH("imagePath"),
-  SUCCESS("success");
+  SUCCESS("success"),
+  RECOGNIZED_TEXT("recognizedText");
 
   final String value;
   const ScannerEvents(this.value);
@@ -99,10 +100,14 @@ class _EdgeDetectionCameraScreenState extends State<EdgeDetectionCameraScreen> {
 
       if (result != null && result[ScannerEvents.SUCCESS.value] == true) {
         final savedImagePath = result[ScannerEvents.IMAGE_PATH.value] as String;
+        final recognizedText = result[ScannerEvents.RECOGNIZED_TEXT.value] as String;
 
         final storageService = DocumentStorageService();
-        await storageService.saveDocument(savedImagePath,
-            name: 'Document ${DateTime.now().toString().substring(0, 16)}');
+        await storageService.saveDocument(
+          savedImagePath,
+          name: 'Document ${DateTime.now().toString().substring(0, 16)}',
+          recognizedText: recognizedText.isEmpty ? null : recognizedText,
+        );
 
         if (mounted) {
           InfoNotifier.show(

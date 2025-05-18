@@ -148,6 +148,7 @@ class PaperRectangle : View {
                 latestDownY = event.y
                 calculatePoint2Move(event.x, event.y)
             }
+
             MotionEvent.ACTION_MOVE -> {
                 point2Move.x = (event.x - latestDownX) + point2Move.x
                 point2Move.y = (event.y - latestDownY) + point2Move.y
@@ -199,7 +200,7 @@ class PaperRectangle : View {
     }
 
     fun setEdgeColor(color: Int) {
-      rectPaint.color = color
-      invalidate()
+        rectPaint.color = color
+        invalidate()
     }
 }
