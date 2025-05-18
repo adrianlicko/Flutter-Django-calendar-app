@@ -12,7 +12,7 @@ class DocumentStorageService {
   static const String _documentsKey = 'scanned_documents';
   final Uuid _uuid = const Uuid();
   
-  Future<DocumentModel> saveDocument(String sourcePath, {String? name}) async {
+  Future<DocumentModel> saveDocument(String sourcePath, {String? name, String? recognizedText}) async {
     final appDir = await getApplicationDocumentsDirectory();
     final documentsDir = Directory('${appDir.path}/scanned_documents');
     
@@ -33,6 +33,7 @@ class DocumentStorageService {
       path: newFile.path,
       createdAt: DateTime.now(),
       name: name ?? 'Document ${DateTime.now().toString().substring(0, 16)}',
+      text: recognizedText,
     );
     
     await _saveDocumentMetadata(document);

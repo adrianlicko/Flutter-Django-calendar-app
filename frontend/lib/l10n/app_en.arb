@@ -53,5 +53,6 @@
   "openSettings": "Open Settings",
   "noInternetConnection": "No internet connection",
   "cannotAccessBackend": "Cannot access backend",
-  "badRequest": "Bad request"
+  "badRequest": "Bad request",
+  "recognizedText": "Recognized text"
 }

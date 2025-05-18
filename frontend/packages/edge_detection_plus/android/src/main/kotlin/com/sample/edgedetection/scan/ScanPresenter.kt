@@ -87,6 +87,8 @@ class ScanPresenter constructor(
     private var documentPoints: MatOfPoint2f? = null
     private var picture: Mat? = null;
 
+    private var recognizedText: String = ""
+    private var isProcessingText: Boolean = false
 
     init {
         mSurfaceHolder.addCallback(this)
@@ -460,7 +462,8 @@ class ScanPresenter constructor(
             "corners" to corners,
             "width" to width,
             "height" to height,
-            "imagePath" to fullPicPath
+            "imagePath" to fullPicPath,
+            "recognizedText" to recognizedText,
         )
     }
 
@@ -495,15 +498,20 @@ class ScanPresenter constructor(
 
     override fun onPictureTaken(p0: ByteArray?, p1: Camera?) {}
 
-    private fun analyzeText(photo: Bitmap, qrValue: String) {
+    private fun analyzeText(photo: Bitmap) {
+        if (isProcessingText) {
+            return
+        }
+        isProcessingText = true
         val image = InputImage.fromBitmap(photo, 0)
         val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         textRecognizer.process(image)
             .addOnSuccessListener { textResult ->
-                val recognizedText = textResult.text
-                val recognizedTextLines = recognizedText.split("\n")
+                isProcessingText = false
+                recognizedText = textResult.text
             }
             .addOnFailureListener { e ->
+                isProcessingText = false
                 println("Text recognition error: ${e.message}")
             }
     }
@@ -540,6 +548,8 @@ class ScanPresenter constructor(
                     val qrBitmap =
                         Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888)
                     Utils.matToBitmap(img, qrBitmap)
+
+                    analyzeText(qrBitmap)
 
                     val detectedCorners = processPicture(img)
                     // if (detectedCorners != null && canShut() && qrCodeDetected) {

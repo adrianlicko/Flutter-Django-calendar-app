@@ -185,13 +185,33 @@ class _DocumentViewScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(document.name ?? 'Document'),
       ),
-      body: Center(
-        child: InteractiveViewer(
-          panEnabled: true,
-          minScale: 0.5,
-          maxScale: 4,
-          child: Image.file(File(document.path)),
-        ),
+      body: ListView(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 4,
+              child: Image.file(File(document.path)),
+            ),
+          ),
+          if (document.text != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${AppLocalizations.of(context)!.recognizedText}:",
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(document.text!),
+                ],
+              ),
+            )
+        ],
       ),
     );
   }

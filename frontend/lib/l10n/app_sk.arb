@@ -53,5 +53,6 @@
   "openSettings": "Otvoriť nastavenia",
   "noInternetConnection": "Žiadne internetové pripojenie",
   "cannotAccessBackend": "Backend nie je prístupný",
-  "badRequest": "Zlý request"
+  "badRequest": "Zlý request",
+  "recognizedText": "Rozpoznaný text"
 }
