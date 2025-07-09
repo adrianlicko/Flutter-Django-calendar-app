@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/components/notifiers/error_notifier.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/services/auth_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ConnectivityService with ChangeNotifier {
   final Connectivity _connectivity = Connectivity();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});

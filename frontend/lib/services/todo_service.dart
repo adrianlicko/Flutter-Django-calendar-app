@@ -4,7 +4,7 @@ import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/auth_service.dart';
 import 'dart:convert';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 
 class TodoService {
   final AuthService _authService = locator<AuthService>();
@@ -51,7 +51,8 @@ class TodoService {
     }).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDateWithTime(BuildContext context, DateTime date, {bool onlyNotCompleted = true}) async {
+  Future<List<TodoModel>> getTodosForDateWithTime(BuildContext context, DateTime date,
+      {bool onlyNotCompleted = true}) async {
     List<TodoModel> todos = [];
     if (onlyNotCompleted) {
       todos = await getNotCompletedTodos(context);
@@ -65,7 +66,8 @@ class TodoService {
     }).toList();
   }
 
-  Future<List<TodoModel>> getTodosForDateWithoutTime(BuildContext context, DateTime date, {bool onlyNotCompleted = true}) async {
+  Future<List<TodoModel>> getTodosForDateWithoutTime(BuildContext context, DateTime date,
+      {bool onlyNotCompleted = true}) async {
     List<TodoModel> todos = [];
     if (onlyNotCompleted) {
       todos = await getNotCompletedTodos(context);

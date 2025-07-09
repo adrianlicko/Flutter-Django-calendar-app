@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:frontend/components/custom_text_field.dart';
 import 'package:frontend/components/notifiers/error_notifier.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -215,41 +215,43 @@ class _AuthScreenState extends State<AuthScreen> {
     return AppScaffold(
         showAppBarActions: false,
         body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _showLoginScreen ? _buildLoginWidget() : _buildRegisterWidget(),
-            DropdownButton<Locale>(
-              dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-              value: localeProvider.locale,
-              onChanged: (Locale? newLocale) {
-                if (newLocale != null) {
-                  localeProvider.setLocale(newLocale);
-                  _userPreferencesService.updatePreferences(context, UserPreferencesModel(
-                    locale: newLocale,
-                    theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
-                    showTodosInCalendar: true,
-                    removeTodoFromCalendarWhenCompleted: true,
-                  ));
-                }
-              },
-              items: L10n.all.map((Locale locale) {
-                final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
-                return DropdownMenuItem(
-                  value: locale,
-                  child: Text(flag,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge!
-                          .copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)),
-                );
-              }).toList(),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _showLoginScreen ? _buildLoginWidget() : _buildRegisterWidget(),
+                DropdownButton<Locale>(
+                  dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+                  value: localeProvider.locale,
+                  onChanged: (Locale? newLocale) {
+                    if (newLocale != null) {
+                      localeProvider.setLocale(newLocale);
+                      _userPreferencesService.updatePreferences(
+                          context,
+                          UserPreferencesModel(
+                            locale: newLocale,
+                            theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
+                            showTodosInCalendar: true,
+                            removeTodoFromCalendarWhenCompleted: true,
+                          ));
+                    }
+                  },
+                  items: L10n.all.map((Locale locale) {
+                    final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
+                    return DropdownMenuItem(
+                      value: locale,
+                      child: Text(flag,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 }

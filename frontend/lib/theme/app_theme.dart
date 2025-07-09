@@ -9,7 +9,7 @@ class AppTheme {
       primaryColorDark: theme.primaryColorDark,
       primaryColorLight: theme.primaryColorLight,
       scaffoldBackgroundColor: theme.scaffoldBackgroundColor,
-      cardTheme: CardTheme(color: theme.primaryColor),
+      cardTheme: CardThemeData(color: theme.primaryColor),
       listTileTheme: ListTileThemeData(iconColor: theme.appbarIconColor, textColor: theme.textColor),
       iconTheme: IconThemeData(color: theme.iconColor),
       floatingActionButtonTheme:
@@ -78,7 +78,7 @@ class AppTheme {
       drawerTheme: DrawerThemeData(
         backgroundColor: theme.scaffoldBackgroundColor,
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: theme.scaffoldBackgroundColor,
         titleTextStyle: TextStyle(
           color: theme.textColor,

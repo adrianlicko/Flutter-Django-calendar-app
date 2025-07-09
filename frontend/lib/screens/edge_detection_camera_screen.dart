@@ -8,7 +8,7 @@ import 'package:frontend/services/document_storage_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 enum ScannerEvents {

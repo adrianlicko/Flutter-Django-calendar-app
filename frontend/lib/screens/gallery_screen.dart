@@ -7,7 +7,7 @@ import 'package:frontend/components/notifiers/info_notifier.dart';
 import 'package:frontend/models/document_model.dart';
 import 'package:frontend/screens/loading_screen.dart';
 import 'package:frontend/services/document_storage_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class GalleryScreen extends StatefulWidget {

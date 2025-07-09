@@ -13,7 +13,7 @@ import 'package:frontend/services/connectivity_service.dart';
 import 'package:frontend/services/user_data_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
