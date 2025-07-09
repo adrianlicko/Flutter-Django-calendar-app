@@ -12,7 +12,7 @@ import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/screens/loading_screen.dart';
 import 'package:frontend/services/schedule_service.dart';
 import 'package:frontend/services/todo_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -420,11 +420,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _isLoadingData = true;
     });
     if (_userData.preferences.showTodosInCalendar) {
-      selectedDayTodosWithTime = await locator<TodoService>()
-          .getTodosForDateWithTime(context, date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
+      selectedDayTodosWithTime = await locator<TodoService>().getTodosForDateWithTime(context, date,
+          onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
     }
-    selectedDayTodosWithoutTime = await locator<TodoService>()
-        .getTodosForDateWithoutTime(context, date, onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
+    selectedDayTodosWithoutTime = await locator<TodoService>().getTodosForDateWithoutTime(context, date,
+        onlyNotCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted);
     setState(() {
       _isLoadingData = false;
     });

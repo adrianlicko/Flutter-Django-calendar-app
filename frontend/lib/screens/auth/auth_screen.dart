@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:frontend/components/custom_text_field.dart';
 import 'package:frontend/components/error_notifier.dart';
 import 'package:frontend/l10n/l10n.dart';
@@ -226,12 +226,14 @@ class _AuthScreenState extends State<AuthScreen> {
               onChanged: (Locale? newLocale) {
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
-                  _userPreferencesService.updatePreferences(context, UserPreferencesModel(
-                    locale: newLocale,
-                    theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
-                    showTodosInCalendar: true,
-                    removeTodoFromCalendarWhenCompleted: true,
-                  ));
+                  _userPreferencesService.updatePreferences(
+                      context,
+                      UserPreferencesModel(
+                        locale: newLocale,
+                        theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
+                        showTodosInCalendar: true,
+                        removeTodoFromCalendarWhenCompleted: true,
+                      ));
                 }
               },
               items: L10n.all.map((Locale locale) {

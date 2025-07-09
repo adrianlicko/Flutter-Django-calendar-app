@@ -11,7 +11,7 @@ import 'package:frontend/providers/theme_provider.dart';
 import 'package:frontend/services/user_data_service.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -157,8 +157,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           if (_isPasswordTextFieldEnabled)
             Form(
               key: _isPasswordTextFieldEnabled ? _passwordKey : null,
-              child:
-                  CustomTextField(controller: _passwordController, obscureText: true, labelText: AppLocalizations.of(context)!.password),
+              child: CustomTextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  labelText: AppLocalizations.of(context)!.password),
             ),
           if (_isNameTextFieldEnabled || _isEmailTextFieldEnabled || _isPasswordTextFieldEnabled)
             Align(
@@ -176,13 +178,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               setState(() {
                                 isButtonLoading = true;
                               });
-                              final response = await _userDataService.updateUserData(context, UserDataModel(
-                                  id: _userData.id,
-                                  email: _isEmailTextFieldEnabled ? _emailController.text : _userData.email,
-                                  firstName: _isNameTextFieldEnabled ? _firstNameController.text : _userData.firstName,
-                                  lastName: _isNameTextFieldEnabled ? _lastNameController.text : _userData.lastName,
-                                  password: _isPasswordTextFieldEnabled ? _passwordController.text : _userData.password,
-                                  preferences: _userData.preferences));
+                              final response = await _userDataService.updateUserData(
+                                  context,
+                                  UserDataModel(
+                                      id: _userData.id,
+                                      email: _isEmailTextFieldEnabled ? _emailController.text : _userData.email,
+                                      firstName:
+                                          _isNameTextFieldEnabled ? _firstNameController.text : _userData.firstName,
+                                      lastName: _isNameTextFieldEnabled ? _lastNameController.text : _userData.lastName,
+                                      password:
+                                          _isPasswordTextFieldEnabled ? _passwordController.text : _userData.password,
+                                      preferences: _userData.preferences));
                               _userData = response!;
                               setState(() {
                                 isButtonLoading = false;
@@ -226,12 +232,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   title: AppLocalizations.of(context)!.showTodoTasksInCalendar,
                   isEnabled: _userData.preferences.showTodosInCalendar,
                   onTap: (value) async {
-                    final response = await _userDataService.updatePreferences(context, UserPreferencesModel(
-                      locale: _userData.preferences.locale,
-                      theme: _userData.preferences.theme,
-                      showTodosInCalendar: value!,
-                      removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
-                    ));
+                    final response = await _userDataService.updatePreferences(
+                        context,
+                        UserPreferencesModel(
+                          locale: _userData.preferences.locale,
+                          theme: _userData.preferences.theme,
+                          showTodosInCalendar: value!,
+                          removeTodoFromCalendarWhenCompleted:
+                              _userData.preferences.removeTodoFromCalendarWhenCompleted,
+                        ));
                     _userData.preferences.setShowTodosInCalendar(response!.showTodosInCalendar);
                     setState(() {});
                   }),
@@ -241,12 +250,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   optionColor: _userData.preferences.showTodosInCalendar ? null : Colors.grey[700],
                   onTap: (value) async {
                     if (!_userData.preferences.showTodosInCalendar) return;
-                    final response = await _userDataService.updatePreferences(context, UserPreferencesModel(
-                      locale: _userData.preferences.locale,
-                      theme: _userData.preferences.theme,
-                      showTodosInCalendar: _userData.preferences.showTodosInCalendar,
-                      removeTodoFromCalendarWhenCompleted: value!,
-                    ));
+                    final response = await _userDataService.updatePreferences(
+                        context,
+                        UserPreferencesModel(
+                          locale: _userData.preferences.locale,
+                          theme: _userData.preferences.theme,
+                          showTodosInCalendar: _userData.preferences.showTodosInCalendar,
+                          removeTodoFromCalendarWhenCompleted: value!,
+                        ));
                     _userData.preferences
                         .setRemoveTodoFromCalendarWhenCompleted(response!.removeTodoFromCalendarWhenCompleted);
                     setState(() {});
@@ -264,12 +275,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 if (newLocale != null) {
                   localeProvider.setLocale(newLocale);
                   _userData.preferences.setLocale(newLocale);
-                  _userDataService.updatePreferences(context, UserPreferencesModel(
-                    locale: newLocale,
-                    theme: _userData.preferences.theme,
-                    showTodosInCalendar: _userData.preferences.showTodosInCalendar,
-                    removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
-                  ));
+                  _userDataService.updatePreferences(
+                      context,
+                      UserPreferencesModel(
+                        locale: newLocale,
+                        theme: _userData.preferences.theme,
+                        showTodosInCalendar: _userData.preferences.showTodosInCalendar,
+                        removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
+                      ));
                 }
               },
               items: L10n.all.map((Locale locale) {
@@ -294,12 +307,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 if (newTheme != null) {
                   themeProvider.setTheme(newTheme);
                   _userData.preferences.setTheme(newTheme);
-                  _userDataService.updatePreferences(context, UserPreferencesModel(
-                    locale: _userData.preferences.locale,
-                    theme: newTheme,
-                    showTodosInCalendar: _userData.preferences.showTodosInCalendar,
-                    removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
-                  ));
+                  _userDataService.updatePreferences(
+                      context,
+                      UserPreferencesModel(
+                        locale: _userData.preferences.locale,
+                        theme: newTheme,
+                        showTodosInCalendar: _userData.preferences.showTodosInCalendar,
+                        removeTodoFromCalendarWhenCompleted: _userData.preferences.removeTodoFromCalendarWhenCompleted,
+                      ));
                 }
               },
               items: AllAppColors.values.map((AllAppColors theme) {

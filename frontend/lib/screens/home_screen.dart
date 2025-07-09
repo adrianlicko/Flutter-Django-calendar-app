@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/components/card_banner.dart';
 import 'dart:math' as math;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
