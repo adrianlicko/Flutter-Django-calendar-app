@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/components/error_notifier.dart';
-import 'package:frontend/l10n/app_localizations.dart';
+import 'package:frontend/components/notifiers/error_notifier.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/todo_model.dart';
 import 'package:frontend/services/auth_service.dart';
 import 'dart:convert';
+import 'package:frontend/l10n/app_localizations.dart';
 
 class TodoService {
   final AuthService _authService = locator<AuthService>();
@@ -26,7 +26,7 @@ class TodoService {
       return _todos;
     } else {
       if (response?.statusCode != 200) {
-        ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToGetTodos);
+        ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToGetTodos);
       }
       return List<TodoModel>.empty();
     }
@@ -93,7 +93,7 @@ class TodoService {
       _todos.add(newTodo);
       return newTodo;
     } else {
-      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToAddTodo);
+      ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToAddTodo);
       return null;
     }
   }
@@ -107,7 +107,7 @@ class TodoService {
     if (response != null && response.statusCode == 204) {
       _todos.removeWhere((todo) => todo.id == todoId);
     } else {
-      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToDeleteTodo);
+      ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToDeleteTodo);
     }
   }
 
@@ -126,7 +126,7 @@ class TodoService {
       }
       return updatedTodo;
     } else {
-      ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToUpdateTodo);
+      ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToUpdateTodo);
       return null;
     }
   }

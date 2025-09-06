@@ -38,5 +38,22 @@
   "failedToUpdateUserSettings": "Failed to update user settings",
   "failedToGetSchedules": "Failed to get schedules",
   "failedToAddSchedule": "Failed to add schedule",
-  "failedToDeleteSchedule": "Failed to delete schedule"
+  "failedToDeleteSchedule": "Failed to delete schedule",
+  "capture": "Capture",
+  "captureAndCrop": "Capture & Crop",
+  "imageWasSavedToGallery": "Image was saved to gallery",
+  "show": "Show",
+  "failedToLoadDocuments": "Failed to load documents",
+  "failedToDeleteDocument": "Failed to delete document",
+  "youHaveNoDocuments": "You have no scanned documents",
+  "scan": "Scan",
+  "gallery": "Gallery",
+  "scanner": "Scanner",
+  "noCameraPermission": "Camera permission is required.",
+  "openSettings": "Open Settings",
+  "noInternetConnection": "No internet connection",
+  "cannotAccessBackend": "Cannot access backend",
+  "badRequest": "Bad request",
+  "recognizedText": "Recognized text",
+  "textWasCopied": "Text was copied to clipboard"
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app_scaffold.dart';
 import 'package:frontend/l10n/app_localizations.dart';
 import 'package:frontend/components/custom_text_field.dart';
-import 'package:frontend/components/error_notifier.dart';
+import 'package:frontend/components/notifiers/error_notifier.dart';
 import 'package:frontend/l10n/l10n.dart';
 import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_preferences_model.dart';
@@ -120,7 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     firstName: registerFirstNameController.text,
                     lastName: registerLastNameController.text);
                 if (!success) {
-                  ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToRegister);
+                  ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToRegister);
                   setState(() {
                     isButtonLoading = false;
                   });
@@ -187,7 +187,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 bool success =
                     await authProvider.login(email: loginEmailController.text, password: loginPasswordController.text);
                 if (!success) {
-                  ErrorNotifier.show(context, AppLocalizations.of(context)!.failedToLogin);
+                  ErrorNotifier.show(context: context, message: AppLocalizations.of(context)!.failedToLogin);
                   setState(() {
                     isButtonLoading = false;
                   });
@@ -213,44 +213,45 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+        showAppBarActions: false,
         body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _showLoginScreen ? _buildLoginWidget() : _buildRegisterWidget(),
-            DropdownButton<Locale>(
-              dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-              value: localeProvider.locale,
-              onChanged: (Locale? newLocale) {
-                if (newLocale != null) {
-                  localeProvider.setLocale(newLocale);
-                  _userPreferencesService.updatePreferences(
-                      context,
-                      UserPreferencesModel(
-                        locale: newLocale,
-                        theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
-                        showTodosInCalendar: true,
-                        removeTodoFromCalendarWhenCompleted: true,
-                      ));
-                }
-              },
-              items: L10n.all.map((Locale locale) {
-                final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
-                return DropdownMenuItem(
-                  value: locale,
-                  child: Text(flag,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge!
-                          .copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)),
-                );
-              }).toList(),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _showLoginScreen ? _buildLoginWidget() : _buildRegisterWidget(),
+                DropdownButton<Locale>(
+                  dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+                  value: localeProvider.locale,
+                  onChanged: (Locale? newLocale) {
+                    if (newLocale != null) {
+                      localeProvider.setLocale(newLocale);
+                      _userPreferencesService.updatePreferences(
+                          context,
+                          UserPreferencesModel(
+                            locale: newLocale,
+                            theme: Provider.of<ThemeProvider>(context, listen: false).currentTheme,
+                            showTodosInCalendar: true,
+                            removeTodoFromCalendarWhenCompleted: true,
+                          ));
+                    }
+                  },
+                  items: L10n.all.map((Locale locale) {
+                    final flag = locale.languageCode == 'en' ? '🇺🇸' : '🇸🇰';
+                    return DropdownMenuItem(
+                      value: locale,
+                      child: Text(flag,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 }

@@ -1,29 +1,41 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:frontend/locator.dart';
 import 'package:frontend/models/user_data_model.dart';
 import 'package:frontend/models/user_preferences_model.dart';
+import 'package:frontend/services/connectivity_service.dart';
+import 'package:frontend/services/local_storage_service.dart';
 import 'package:frontend/theme/all_themes.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 
 class AuthService {
-  final String _baseUrl = kIsWeb ? 'http://127.0.0.1:8000/api/' : 'http://10.0.2.2:8000/api/';
+  final String _baseUrl = 'http://localhost:8000/api/';
   String? _accessToken;
   String? _refreshToken;
 
+  String get baseUrl => _baseUrl;
   String? get accessToken => _accessToken;
   String? get refreshToken => _refreshToken;
 
+  final ConnectivityService _connectivityService = locator<ConnectivityService>();
+  final LocalStorageService _localStorageService = locator<LocalStorageService>();
+
   Future<UserDataModel?> getCurrentUser() async {
+    if (!await _connectivityService.checkConnectivityToBackend()) {
+      return _localStorageService.getUserData();
+    }
+
     final response = await authenticatedRequest(
       method: 'GET',
       endpoint: 'users/me/',
     );
 
     if (response != null && response.statusCode == 200) {
-      return UserDataModel.fromJson(jsonDecode(response.body));
+      final userData = UserDataModel.fromJson(jsonDecode(response.body));
+      await _localStorageService.saveUserData(userData);
+      return userData;
     } else {
-      return null;
+      return _localStorageService.getUserData();
     }
   }
 
@@ -60,7 +72,16 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    print(_baseUrl);
+    if (!await _connectivityService.checkConnectivity()) {
+      final tokens = await _localStorageService.getAuthTokens();
+      if (tokens != null) {
+        _accessToken = tokens['access'];
+        _refreshToken = tokens['refresh'];
+        return {'access': _accessToken, 'refresh': _refreshToken, 'offline': true};
+      }
+      return null;
+    }
+
     final response = await http.post(
       Uri.parse('${_baseUrl}token/'),
       headers: {'Content-Type': 'application/json'},
@@ -74,6 +95,11 @@ class AuthService {
       final data = jsonDecode(response.body);
       _accessToken = data['access'];
       _refreshToken = data['refresh'];
+      await _localStorageService.saveAuthTokens(_accessToken!, _refreshToken!);
+      final user = await getCurrentUser();
+      if (user != null) {
+        _localStorageService.saveUserData(user);
+      }
       return data;
     } else {
       return null;
@@ -81,7 +107,21 @@ class AuthService {
   }
 
   Future<bool> refreshAccessToken() async {
-    if (_refreshToken == null) return false;
+    if (_refreshToken == null) {
+      final tokens = await _localStorageService.getAuthTokens();
+      if (tokens != null) {
+        _refreshToken = tokens['refresh'];
+        _accessToken = tokens['access'];
+      } else {
+        return false;
+      }
+    }
+
+    bool isDeviceOnline = await _connectivityService.checkConnectivity();
+
+    if (!isDeviceOnline) {
+      return _accessToken != null;
+    }
 
     final response = await http.post(
       Uri.parse('${_baseUrl}token/refresh/'),
@@ -92,8 +132,11 @@ class AuthService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       _accessToken = data['access'];
+      await _localStorageService.saveAuthTokens(_accessToken!, _refreshToken!);
       return true;
     } else {
+      await _localStorageService.clearAuthTokens();
+      await logout();
       return false;
     }
   }
@@ -106,6 +149,7 @@ class AuthService {
   Future<void> logout() async {
     _accessToken = null;
     _refreshToken = null;
+    await _localStorageService.clearAuthTokens();
   }
 
   Future<http.Response?> authenticatedRequest({
@@ -115,6 +159,20 @@ class AuthService {
     dynamic body,
     bool requireAuth = true,
   }) async {
+    if (requireAuth && _accessToken == null) {
+      final tokens = await _localStorageService.getAuthTokens();
+      if (tokens != null) {
+        _accessToken = tokens['access'];
+        _refreshToken = tokens['refresh'];
+      } else if (await _connectivityService.checkConnectivity()) {
+        return null;
+      }
+    }
+
+    if (!await _connectivityService.checkConnectivity() && requireAuth) {
+      return null;
+    }
+
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
       if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
@@ -146,7 +204,6 @@ class AuthService {
           throw UnsupportedError('Unsupported HTTP method: $method');
       }
     } catch (e) {
-      print('HTTP Request Error: $e');
       return null;
     }
 
@@ -172,18 +229,8 @@ class AuthService {
               throw UnsupportedError('Unsupported HTTP method: $method');
           }
         } catch (e) {
-          print('HTTP Request Error after refresh: $e');
           return null;
         }
-
-        if (response.statusCode == 401) {
-          await logout();
-          return null;
-        }
-        return response;
-      } else {
-        await logout();
-        return null;
       }
     }
     return response;

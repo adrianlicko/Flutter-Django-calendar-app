@@ -1,4 +1,6 @@
 import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/services/connectivity_service.dart';
+import 'package:frontend/services/local_storage_service.dart';
 import 'package:frontend/services/schedule_service.dart';
 import 'package:frontend/services/todo_service.dart';
 import 'package:frontend/services/user_data_service.dart';
@@ -11,4 +13,6 @@ void setupLocator() {
   locator.registerLazySingleton<UserDataService>(() => UserDataService());
   locator.registerLazySingleton<TodoService>(() => TodoService());
   locator.registerLazySingleton<ScheduleService>(() => ScheduleService());
+  locator.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
+  locator.registerLazySingleton<LocalStorageService>(() => LocalStorageService());
 }
